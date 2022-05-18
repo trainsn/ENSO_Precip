@@ -22,7 +22,6 @@ from apex import amp
 from ENSOPrecip import *
 from generator import Generator
 from resblock import *
-from utils import *
 
 # parse arguments
 def parse_args():
@@ -75,5 +74,92 @@ def main(args):
     np.random.seed(args.seed)
     torch.backends.cudnn.deterministic = True
 
-    
+    # data loader
+    train_dataset = ENSOPrecipDataset(
+        root=args.root,
+        transform=transforms.Compose([Normalize(), ToTensor()]))
 
+    kwargs = {"num_workers": 4, "pin_memory": True}
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
+                              shuffle=True, **kwargs)
+
+    # model
+    def weights_init(m):
+        if isinstance(m, nn.Conv1d) or isinstance(m, nn.Conv3d):
+            nn.init.orthogonal_(m.weight)
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+
+    def add_sn(m):
+        for name, c in m.named_children():
+            m.add_module(name, add_sn(c))
+        if isinstance(m, (nn.Linear, nn.Conv2d)):
+            return nn.utils.spectral_norm(m, eps=1e-4)
+        else:
+            return m
+
+    g_model = Generator(args.ch)
+    g_model.apply(weights_init)
+    if args.sn:
+        g_model = add_sn(g_model)
+    g_model.to("cuda")
+
+    l1_criterion = nn.L1Loss().cuda()
+
+    # optimizer
+    g_optimizer = optim.Adam(g_model.parameters(), lr=args.lr,
+                             betas=(args.beta1, args.beta2))
+    g_model, g_optimizer = amp.initialize(g_model, g_optimizer, opt_level=args.opt_level)
+
+    # load checkpoint
+    if args.resume:
+        if os.path.isfile(args.resume):
+            print("=> loading checkpoint {}".format(args.resume))
+            checkpoint = torch.load(args.resume)
+            args.start_epoch = checkpoint["epoch"]
+            g_model.load_state_dict(checkpoint["g_model_state_dict"])
+            # g_optimizer.load_state_dict(checkpoint["g_optimizer_state_dict"])
+            # train_losses = checkpoint["train_losses"]
+            print("=> loaded checkpoint {} (epoch {})"
+                  .format(args.resume, checkpoint["epoch"]))
+
+        # main loop
+    for epoch in range(args.start_epoch, args.epochs):
+        # training...
+        g_model.train()
+        train_l1_loss = 0.
+        for i, sample in enumerate(train_loader):
+            index = sample["index"].to("cuda:0")
+            precip = sample["precip"].to("cuda:0")
+            mask = sample["mask"].to("cuda:0")
+
+            g_optimizer.zero_grad()
+            fake_precip = g_model(index)
+
+            loss = 0.
+            l1_loss = l1_criterion(precip * ~mask, fake_precip * ~mask)
+            loss += l1_loss
+
+            with amp.scale_loss(loss, g_optimizer, loss_id=0) as loss_scaled:
+                loss_scaled.backward()
+            g_optimizer.step()
+            train_l1_loss += l1_loss.item()
+
+        if epoch % args.log_every == 0:
+            print("====> Epoch: {} Average L1_loss: {:.4f}".format(
+                epoch, train_l1_loss / len(train_loader.dataset)))
+
+        if (epoch + 1) % args.check_every == 0:
+            print("=> saving checkpoint at epoch {}".format(epoch + 1))
+            torch.save({"epoch": epoch + 1,
+                        "g_model_state_dict": g_model.state_dict(),
+                        "g_optimizer_state_dict": g_optimizer.state_dict(),
+                        # "train_losses": train_losses
+                        },
+                       os.path.join(args.root, "model_" + str(epoch + 1) + ".pth.tar"))
+
+            torch.save(g_model.state_dict(),
+                       os.path.join(args.root, "model_" + str(epoch + 1) + ".pth"))
+
+if __name__ == "__main__":
+    main(parse_args())

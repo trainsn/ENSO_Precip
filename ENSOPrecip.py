@@ -11,7 +11,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 
 class ENSOPrecipDataset(Dataset):
-    def __init__(self, root,  transform=None):
+    def __init__(self, root, transform=None):
         self.root = root
         self.transform = transform
 
@@ -23,10 +23,7 @@ class ENSOPrecipDataset(Dataset):
             index = index.item()
 
         enso_index = np.loadtxt(os.path.join(self.root, "train", "enso_index.txt"), delimiter=',')
-        f = nc.Dataset(os.path.join(self.root, "train", "AnomPrecip_1979-2020.1in4.nc"))
-        var = "ATP"
-        var_data = f[var][:]
-        enso_precip = np.array(var_data)
+        enso_precip = np.load(os.path.join(self.root, "train", "precip.npy"))
         mask = enso_precip < 0
 
         sample = {"index": enso_index, "precip": enso_precip, "mask": mask}

@@ -14,11 +14,11 @@ class Generator(nn.Module):
 
         self.ch = ch
 
-        self.BG0 = BasicBlockGenerator1D(1, 220 * 16 * ch, 487, kernel_size=3, stride=1, padding=1)
-        self.BG1 = BasicBlockGenerator3D(16 * ch, 16 * ch, [487, 20, 44], kernel_size=3, stride=1, padding=1)
-        self.BG2 = BasicBlockGenerator3D(16 * ch, 16 * ch, [487, 39, 88], kernel_size=3, stride=1, padding=1)
-        self.BG3 = BasicBlockGenerator3D(16 * ch, 16 * ch, [487, 78, 176], kernel_size=3, stride=1, padding=1)
-        self.BG4 = BasicBlockGenerator3D(16 * ch, 16 * ch, [487, 155, 351], kernel_size=3, stride=1, padding=1)
+        self.BG0 = BasicBlockGenerator1D(1, 256, 220 * 16 * ch, 487, kernel_size=3, stride=1, padding=1)
+        self.BG1 = BasicBlockGenerator3D(16 * ch, 8 * ch, [487, 20, 44], kernel_size=3, stride=1, padding=1)
+        self.BG2 = BasicBlockGenerator3D(8 * ch, 4 * ch, [487, 39, 88], kernel_size=3, stride=1, padding=1)
+        self.BG3 = BasicBlockGenerator3D(4 * ch, 2 * ch, [487, 78, 176], kernel_size=3, stride=1, padding=1)
+        self.BG4 = BasicBlockGenerator3D(2 * ch, 1 * ch, [487, 155, 351], kernel_size=3, stride=1, padding=1)
         self.BG5 = nn.Sequential(
             nn.BatchNorm3d(ch),
             nn.ReLU(),
@@ -37,4 +37,3 @@ class Generator(nn.Module):
         x = self.tanh(x)
 
         return x
-

@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 class BasicBlockGenerator1D(nn.Module):
-    def __init__(self, in_channels, out_channels, out_size, kernel_size=3, stride=1,
+    def __init__(self, in_channels, mid_channels, out_channels, out_size, kernel_size=3, stride=1,
                  padding=1, activation=F.relu, upsample=True):
         super(BasicBlockGenerator1D, self).__init__()
 
@@ -19,11 +19,11 @@ class BasicBlockGenerator1D(nn.Module):
                                       1, 1, 0, bias=False)
 
         self.bn0 = nn.BatchNorm1d(in_channels)
-        self.conv0 = nn.Conv1d(in_channels, out_channels, kernel_size,
+        self.conv0 = nn.Conv1d(in_channels, mid_channels, kernel_size,
                                stride, padding, bias=False)
 
-        self.bn1 = nn.BatchNorm1d(out_channels)
-        self.conv1 = nn.Conv1d(out_channels, out_channels, kernel_size,
+        self.bn1 = nn.BatchNorm1d(mid_channels)
+        self.conv1 = nn.Conv1d(mid_channels, out_channels, kernel_size,
                                stride, padding, bias=False)
 
     def forward(self, x):
