@@ -4,53 +4,80 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-class BasicBlockGenerator1D(nn.Module):
-    def __init__(self, in_channels, mid_channels, out_channels, out_size, kernel_size=3, stride=1,
-                 padding=1, activation=F.relu, upsample=True):
-        super(BasicBlockGenerator1D, self).__init__()
+from layer import *
 
-        self.out_size = out_size
+import pdb
+
+class BasicBlockEncoder(nn.Module):
+    def __init__(self, in_channels, out_channels, activation=F.relu, downsample=True):
+        super(BasicBlockEncoder, self).__init__()
+
         self.activation = activation
-        self.upsample = upsample
+        self.downsample = downsample
         self.conv_res = None
+        if self.downsample or in_channels != out_channels:
+            self.conv_res = nn.Conv3d(in_channels, out_channels,
+                                        1, 1, 0, bias=True)
 
-        if self.upsample or in_channels != out_channels:
-            self.conv_res = nn.Conv1d(in_channels, out_channels,
-                                      1, 1, 0, bias=False)
+        self.bn0 = nn.BatchNorm3d(in_channels)
+        self.conv0 = ConvSkew(in_channels, out_channels)
 
-        self.bn0 = nn.BatchNorm1d(in_channels)
-        self.conv0 = nn.Conv1d(in_channels, mid_channels, kernel_size,
-                               stride, padding, bias=False)
-
-        self.bn1 = nn.BatchNorm1d(mid_channels)
-        self.conv1 = nn.Conv1d(mid_channels, out_channels, kernel_size,
-                               stride, padding, bias=False)
+        self.bn1 = nn.BatchNorm3d(out_channels)
+        self.conv1 = ConvSkew(out_channels, out_channels)
 
     def forward(self, x):
         residual = x
-        if self.upsample:
-            residual = F.interpolate(residual, size=self.out_size)
         if self.conv_res is not None:
             residual = self.conv_res(residual)
+        if self.downsample:
+            residual = downsample(residual)
 
         out = self.bn0(x)
         out = self.activation(out)
-        if self.upsample:
-            out = F.interpolate(out, size=self.out_size)
         out = self.conv0(out)
 
         out = self.bn1(out)
         out = self.activation(out)
         out = self.conv1(out)
 
+        if self.downsample:
+            out = downsample(out)
+
         return out + residual
 
-class BasicBlockGenerator3D(nn.Module):
-    def __init__(self, in_channels, out_channels, out_size, kernel_size=3, stride=1,
-                 padding=1, activation=F.relu, upsample=True):
-        super(BasicBlockGenerator3D, self).__init__()
+class FirstBlockEncoder(nn.Module):
+    def __init__(self, in_channels, out_channels, activation=F.relu):
+        super(FirstBlockEncoder, self).__init__()
 
-        self.out_size = out_size
+        self.activation = activation
+        self.conv_res = nn.Conv3d(in_channels, out_channels,
+                                  1, 1, 0, bias=True)
+
+        self.bn0 = nn.BatchNorm3d(in_channels)
+        self.conv0 = ConvSkew(in_channels, out_channels)
+
+        self.bn1 = nn.BatchNorm3d(out_channels)
+        self.conv1 = ConvSkew(out_channels, out_channels)
+
+    def forward(self, x):
+        residual = self.conv_res(x)
+        residual = downsample(residual)
+
+        out = self.bn0(x)
+        out = self.conv0(out)
+
+        out = self.bn1(out)
+        out = self.activation(out)
+        out = self.conv1(out)
+
+        out = downsample(out)
+
+        return out + residual
+
+class BasicBlockDecoder(nn.Module):
+    def __init__(self, in_channels, out_channels, activation=F.relu, upsample=True):
+        super(BasicBlockDecoder, self).__init__()
+
         self.activation = activation
         self.upsample = upsample
         self.conv_res = None
@@ -60,24 +87,22 @@ class BasicBlockGenerator3D(nn.Module):
                                       1, 1, 0, bias=False)
 
         self.bn0 = nn.BatchNorm3d(in_channels)
-        self.conv0 = nn.Conv3d(in_channels, out_channels, kernel_size,
-                               stride, padding, bias=False)
+        self.conv0 = ConvSkew(in_channels, out_channels)
 
         self.bn1 = nn.BatchNorm3d(out_channels)
-        self.conv1 = nn.Conv3d(out_channels, out_channels, kernel_size,
-                               stride, padding, bias=False)
+        self.conv1 = ConvSkew(out_channels, out_channels)
 
     def forward(self, x):
         residual = x
         if self.upsample:
-            residual = F.interpolate(residual, size=self.out_size)
+            residual = upsample(residual)
         if self.conv_res is not None:
             residual = self.conv_res(residual)
 
         out = self.bn0(x)
         out = self.activation(out)
         if self.upsample:
-            out = F.interpolate(out, size=self.out_size)
+            out = upsample(out)
         out = self.conv0(out)
 
         out = self.bn1(out)

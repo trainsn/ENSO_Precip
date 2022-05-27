@@ -129,15 +129,14 @@ def main(args):
         g_model.train()
         train_l1_loss = 0.
         for i, sample in enumerate(train_loader):
-            index = sample["index"].to("cuda:0")
+            sst = sample["sst"].to("cuda:0")
             precip = sample["precip"].to("cuda:0")
-            mask = sample["mask"].to("cuda:0")
 
             g_optimizer.zero_grad()
-            fake_precip = g_model(index)
+            fake_precip = g_model(sst)
 
             loss = 0.
-            l1_loss = l1_criterion(precip * ~mask, fake_precip * ~mask)
+            l1_loss = l1_criterion(precip, fake_precip)
             loss += l1_loss
 
             with amp.scale_loss(loss, g_optimizer, loss_id=0) as loss_scaled:

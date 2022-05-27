@@ -22,11 +22,10 @@ class ENSOPrecipDataset(Dataset):
         if type(index) == torch.Tensor:
             index = index.item()
 
-        enso_index = np.loadtxt(os.path.join(self.root, "train", "enso_index.txt"), delimiter=',')
-        enso_precip = np.load(os.path.join(self.root, "train", "precip.npy"))
-        mask = enso_precip < 0
+        enso_sst = np.load(os.path.join(self.root, "train", "AnomSST_1979-2020.npy"))
+        enso_precip = np.load(os.path.join(self.root, "train", "AnomPrecip_1979-2020.npy"))
 
-        sample = {"index": enso_index, "precip": enso_precip, "mask": mask}
+        sample = {"sst": enso_sst, "precip": enso_precip}
 
         if self.transform:
             sample = self.transform(sample)
@@ -35,32 +34,28 @@ class ENSOPrecipDataset(Dataset):
 
 class Normalize(object):
     def __call__(self, sample):
-        index = sample["index"]
+        sst = sample["sst"]
         precip = sample["precip"]
-        mask = sample["mask"]
 
-        index_min = 24.58
-        index_max = 29.42
-        index = (index - (index_min + index_max) / 2.) / ((index_max - index_min) / 2.)
+        sst_min = -14.20
+        sst_max = 18.42
+        sst = (sst - (sst_min + sst_max) / 2.) / ((sst_max - sst_min) / 2.)
 
-        precip_min = 0.0
-        precip_max = 2222.5168
+        precip_min = -21.87
+        precip_max = 88.38
         precip = (precip - (precip_min + precip_max) / 2.) / ((precip_max - precip_min) / 2.)
 
-        return {"index": index, "precip": precip, "mask": mask}
+        return {"sst": sst, "precip": precip}
 
 class ToTensor(object):
     def __call__(self, sample):
-        index = sample["index"]
+        sst = sample["sst"]
         precip = sample["precip"]
-        mask = sample["mask"]
 
         # dimension raising
         # numpy shape: [N, ]
         # torch shape: [N, 1]
-        index = index[None, :]
+        sst = sst[None, :]
         precip = precip[None, :]
-        mask = mask[None, :]
-        return {"index": torch.from_numpy(index),
-                "precip": torch.from_numpy(precip),
-                "mask": torch.from_numpy(mask)}
+        return {"sst": torch.from_numpy(sst),
+                "precip": torch.from_numpy(precip)}
