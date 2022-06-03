@@ -28,7 +28,7 @@ class ConvSkew(nn.Module):
 
     def forward(self, input):
         dimT, dimLat, dimLon = input.shape[2], input.shape[3], input.shape[4]
-        tmp = torch.zeros((input.shape[0], input.shape[1], dimT + 1, dimLat + 2, dimLon + 2), dtype=torch.float16).cuda()
+        tmp = torch.zeros((input.shape[0], input.shape[1], dimT + 1, dimLat + 2, dimLon + 2), dtype=input.dtype).cuda()
         tmp[:, :, 1:, 1:dimLat+1, 1:dimLon+1] = input
         out = self.UT(tmp[:, :, :dimT, 1:dimLat+1, 1:dimLon+1])
         for i in range(9):

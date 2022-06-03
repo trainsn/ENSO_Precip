@@ -123,7 +123,7 @@ def main(args):
             print("=> loaded checkpoint {} (epoch {})"
                   .format(args.resume, checkpoint["epoch"]))
 
-        # main loop
+    # main loop
     for epoch in range(args.start_epoch, args.epochs):
         # training...
         g_model.train()

@@ -39,11 +39,11 @@ class Normalize(object):
 
         sst_min = -14.20
         sst_max = 18.42
-        sst = (sst - (sst_min + sst_max) / 2.) / ((sst_max - sst_min) / 2.)
+        sst = ((sst - (sst_min + sst_max) / 2.) / ((sst_max - sst_min) / 2.)).astype(np.float32)
 
         precip_min = -21.87
         precip_max = 88.38
-        precip = (precip - (precip_min + precip_max) / 2.) / ((precip_max - precip_min) / 2.)
+        precip = ((precip - (precip_min + precip_max) / 2.) / ((precip_max - precip_min) / 2.)).astype(np.float32)
 
         return {"sst": sst, "precip": precip}
 
