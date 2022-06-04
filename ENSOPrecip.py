@@ -22,10 +22,10 @@ class ENSOPrecipDataset(Dataset):
         if type(index) == torch.Tensor:
             index = index.item()
 
-        enso_sst = np.load(os.path.join(self.root, "train", "AnomSST_1979-2020.npy"))
-        enso_precip = np.load(os.path.join(self.root, "train", "AnomPrecip_1979-2020.npy"))
+        enso_input_feat = np.load(os.path.join(self.root, "train", "input_feat.npy"))
+        enso_precip = np.load(os.path.join(self.root, "train", "PRISM_ppt.npy"))
 
-        sample = {"sst": enso_sst, "precip": enso_precip}
+        sample = {"input_feat": enso_input_feat, "precip": enso_precip}
 
         if self.transform:
             sample = self.transform(sample)
@@ -34,28 +34,28 @@ class ENSOPrecipDataset(Dataset):
 
 class Normalize(object):
     def __call__(self, sample):
-        sst = sample["sst"]
+        input_feat = sample["input_feat"]
         precip = sample["precip"]
 
-        sst_min = -14.20
-        sst_max = 18.42
-        sst = ((sst - (sst_min + sst_max) / 2.) / ((sst_max - sst_min) / 2.)).astype(np.float32)
+        input_feat_min = np.array([95827.602, 199.63177, 4644.373, 4644.373, -21.138626, -21.138626]).reshape((-1, 1, 1, 1))
+        input_feat_max = np.array([104431.23, 314.57242, 5970.5391, 5970.5391, 87.681274, 87.681274]).reshape((-1, 1, 1, 1))
+        input_feat = ((input_feat - (input_feat_min + input_feat_max) / 2.)
+                      / ((input_feat_max - input_feat_min) / 2.)).astype(np.float32)
 
-        precip_min = -21.87
-        precip_max = 88.38
+        precip_min = 0.
+        precip_max = 1088.1039
         precip = ((precip - (precip_min + precip_max) / 2.) / ((precip_max - precip_min) / 2.)).astype(np.float32)
 
-        return {"sst": sst, "precip": precip}
+        return {"input_feat": input_feat, "precip": precip}
 
 class ToTensor(object):
     def __call__(self, sample):
-        sst = sample["sst"]
+        input_feat = sample["input_feat"]
         precip = sample["precip"]
 
         # dimension raising
         # numpy shape: [N, ]
         # torch shape: [N, 1]
-        sst = sst[None, :]
         precip = precip[None, :]
-        return {"sst": torch.from_numpy(sst),
+        return {"input_feat": torch.from_numpy(input_feat),
                 "precip": torch.from_numpy(precip)}

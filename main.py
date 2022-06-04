@@ -2,6 +2,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+import pdb
+
 import os
 import argparse
 import math
@@ -104,7 +106,7 @@ def main(args):
         g_model = add_sn(g_model)
     g_model.to("cuda")
 
-    l1_criterion = nn.L1Loss().cuda()
+    l1_criterion = nn.L1Loss(reduction="sum").cuda()
 
     # optimizer
     g_optimizer = optim.Adam(g_model.parameters(), lr=args.lr,
@@ -129,14 +131,17 @@ def main(args):
         g_model.train()
         train_l1_loss = 0.
         for i, sample in enumerate(train_loader):
-            sst = sample["sst"].to("cuda:0")
+            input_feat = sample["input_feat"].to("cuda:0")
             precip = sample["precip"].to("cuda:0")
 
             g_optimizer.zero_grad()
-            fake_precip = g_model(sst)
+            input_feat = input_feat[:, :, -120:, :, :]
+            precip = precip[:, :, -120:, :, :]
+            precip_mask = precip < -1.
+            fake_precip = g_model(input_feat)
 
             loss = 0.
-            l1_loss = l1_criterion(precip, fake_precip)
+            l1_loss = l1_criterion(precip * ~precip_mask, fake_precip * ~precip_mask) / (~precip_mask).sum()
             loss += l1_loss
 
             with amp.scale_loss(loss, g_optimizer, loss_id=0) as loss_scaled:

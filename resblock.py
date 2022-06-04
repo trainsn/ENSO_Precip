@@ -61,7 +61,6 @@ class FirstBlockEncoder(nn.Module):
 
     def forward(self, x):
         residual = self.conv_res(x)
-        residual = downsample(residual)
 
         out = self.bn0(x)
         out = self.conv0(out)
@@ -70,14 +69,13 @@ class FirstBlockEncoder(nn.Module):
         out = self.activation(out)
         out = self.conv1(out)
 
-        out = downsample(out)
-
         return out + residual
 
 class BasicBlockDecoder(nn.Module):
-    def __init__(self, in_channels, out_channels, activation=F.relu, upsample=True):
+    def __init__(self, in_channels, out_channels, out_size, activation=F.relu, upsample=True):
         super(BasicBlockDecoder, self).__init__()
 
+        self.out_size = out_size
         self.activation = activation
         self.upsample = upsample
         self.conv_res = None
@@ -95,14 +93,14 @@ class BasicBlockDecoder(nn.Module):
     def forward(self, x):
         residual = x
         if self.upsample:
-            residual = upsample(residual)
+            residual = upsample(residual, self.out_size)
         if self.conv_res is not None:
             residual = self.conv_res(residual)
 
         out = self.bn0(x)
         out = self.activation(out)
         if self.upsample:
-            out = upsample(out)
+            out = upsample(out, self.out_size)
         out = self.conv0(out)
 
         out = self.bn1(out)
@@ -110,4 +108,3 @@ class BasicBlockDecoder(nn.Module):
         out = self.conv1(out)
 
         return out + residual
-

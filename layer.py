@@ -30,6 +30,8 @@ class ConvSkew(nn.Module):
         dimT, dimLat, dimLon = input.shape[2], input.shape[3], input.shape[4]
         tmp = torch.zeros((input.shape[0], input.shape[1], dimT + 1, dimLat + 2, dimLon + 2), dtype=input.dtype).cuda()
         tmp[:, :, 1:, 1:dimLat+1, 1:dimLon+1] = input
+        tmp[:, :, 1:, 1:dimLat+1, 0] = input[:, :, :, :, -1]
+        tmp[:, :, 1:, 1:dimLat+1, -1] = input[:, :, :, :, 0]
         out = self.UT(tmp[:, :, :dimT, 1:dimLat+1, 1:dimLon+1])
         for i in range(9):
             out += self.kernels[i](tmp[:, :, 1:, self.dirLat[i]:dimLat+self.dirLat[i], self.dirLon[i]:dimLon+self.dirLon[i]])
@@ -44,9 +46,9 @@ def downsample(x):
     x = x.view(B, ch, ts, dimLat // 2, dimLon // 2)
     return x
 
-def upsample(x):
+def upsample(x, out_size):
     B, ch, ts, dimLat, dimLon = x.shape
     x = x.view((B, ch * ts, dimLat, dimLon))
-    x = F.interpolate(x, scale_factor=2.)
-    x = x.view(B, ch, ts, dimLat * 2, dimLon * 2)
+    x = F.interpolate(x, size=out_size)
+    x = x.view(B, ch, ts, out_size[0], out_size[1])
     return x
