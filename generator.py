@@ -33,21 +33,16 @@ class Generator(nn.Module):
         self.tanh = nn.Tanh()
 
     def forward(self, x):
-        e0 = self.BE0(x)    # 145, 288
-        del x
-        e1 = self.BE1(e0)   # 72, 144
-        e2 = self.BE2(e1)   # 36, 72
-        e3 = self.BE3(e2)   # 18, 36
-        e4 = self.BE4(e3)   # 9, 18
-        out = self.BD0(e4) + e3  # 18, 36
-        del e4, e3
-        out = self.BD1(out) + e2  # 36, 72
-        del e2
-        out = self.BD2(out) + e1  # 72, 144
-        del e1
-        out = self.BD3(out) + e0  # 145, 288
-        del e0
-        out = self.BD4(out)
-        out = self.tanh(out)
+        x = self.BE0(x)    # 145, 288
+        x = self.BE1(x)   # 72, 144
+        x = self.BE2(x)   # 36, 72
+        x = self.BE3(x)   # 18, 36
+        x = self.BE4(x)   # 9, 18
+        x = self.BD0(x)  # 18, 36
+        x = self.BD1(x)  # 36, 72
+        x = self.BD2(x)  # 72, 144
+        x = self.BD3(x)  # 145, 288
+        x = self.BD4(x)
+        x = self.tanh(x)
 
-        return out
+        return x

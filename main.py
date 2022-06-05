@@ -37,6 +37,9 @@ def parse_args():
     parser.add_argument("--resume", type=str, default="",
                         help="path to the latest checkpoint (default: none)")
 
+    parser.add_argument("--range", type=int, default=120,
+                        help="the month range (default: 120)")
+
     parser.add_argument("--ch", type=int, default=64,
                         help="channel multiplier (default: 64)")
 
@@ -135,8 +138,8 @@ def main(args):
             precip = sample["precip"].to("cuda:0")
 
             g_optimizer.zero_grad()
-            input_feat = input_feat[:, :, -120:, :, :]
-            precip = precip[:, :, -120:, :, :]
+            input_feat = input_feat[:, :, -args.range:, :, :]
+            precip = precip[:, :, -args.range:, :, :]
             precip_mask = precip < -1.
             fake_precip = g_model(input_feat)
 
