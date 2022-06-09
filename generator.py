@@ -21,11 +21,12 @@ class Generator(nn.Module):
         self.BE3 = BasicBlockEncoder(4 * ch, 8 * ch)
         self.BE4 = BasicBlockEncoder(8 * ch, 16 * ch)
 
-        self.BD0 = BasicBlockDecoder(16 * ch, 8 * ch, [18, 36])
-        self.BD1 = BasicBlockDecoder(8 * ch, 4 * ch, [36, 72])
-        self.BD2 = BasicBlockDecoder(4 * ch, 2 * ch, [72, 144])
-        self.BD3 = BasicBlockDecoder(2 * ch, 1 * ch, [145, 288])
-        self.BD4 = nn.Sequential(
+        self.BD0 = BasicBlockDecoder(16 * ch, 8 * ch, [32, 60])
+        self.BD1 = BasicBlockDecoder(8 * ch, 4 * ch, [64, 120])
+        self.BD2 = BasicBlockDecoder(4 * ch, 2 * ch, [129, 240])
+        self.BD3 = BasicBlockDecoder(2 * ch, 1 * ch, [258, 480])
+        self.BD4 = BasicBlockDecoder(1 * ch, 1 * ch, [516, 960])
+        self.BD5 = nn.Sequential(
             nn.BatchNorm3d(ch),
             nn.ReLU(),
             ConvSkew(ch, 1)
@@ -33,16 +34,28 @@ class Generator(nn.Module):
         self.tanh = nn.Tanh()
 
     def forward(self, x):
-        x = self.BE0(x)    # 145, 288
-        x = self.BE1(x)   # 72, 144
-        x = self.BE2(x)   # 36, 72
-        x = self.BE3(x)   # 18, 36
-        x = self.BE4(x)   # 9, 18
-        x = self.BD0(x)  # 18, 36
-        x = self.BD1(x)  # 36, 72
-        x = self.BD2(x)  # 72, 144
-        x = self.BD3(x)  # 145, 288
+        x = self.BE0(x)
+        x = x[:, :, 2:]
+        x = self.BE1(x)
+        x = x[:, :, 2:]
+        x = self.BE2(x)
+        x = x[:, :, 2:]
+        x = self.BE3(x)
+        x = x[:, :, 2:]
+        x = self.BE4(x)
+        x = x[:, :, 2:]
+        x = self.BD0(x)
+        x = x[:, :, 2:]
+        x = self.BD1(x)
+        x = x[:, :, 2:]
+        x = self.BD2(x)
+        x = x[:, :, 2:]
+        x = self.BD3(x)
+        x = x[:, :, 2:]
         x = self.BD4(x)
+        x = x[:, :, 2:]
+        x = self.BD5(x)
+        x = x[:, :, 1:]
         x = self.tanh(x)
 
         return x

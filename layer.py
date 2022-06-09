@@ -41,14 +41,14 @@ class ConvSkew(nn.Module):
 
 def downsample(x):
     B, ch, ts, dimLat, dimLon = x.shape
-    x = x.view((B, ch * ts, dimLat, dimLon))
+    x = x.reshape((B, ch * ts, dimLat, dimLon))
     x = F.avg_pool2d(x, kernel_size=2)
-    x = x.view(B, ch, ts, dimLat // 2, dimLon // 2)
+    x = x.reshape(B, ch, ts, dimLat // 2, dimLon // 2)
     return x
 
 def upsample(x, out_size):
     B, ch, ts, dimLat, dimLon = x.shape
-    x = x.view((B, ch * ts, dimLat, dimLon))
+    x = x.reshape((B, ch * ts, dimLat, dimLon))
     x = F.interpolate(x, size=out_size)
-    x = x.view(B, ch, ts, out_size[0], out_size[1])
+    x = x.reshape(B, ch, ts, out_size[0], out_size[1])
     return x

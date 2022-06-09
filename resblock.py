@@ -61,6 +61,7 @@ class FirstBlockEncoder(nn.Module):
 
     def forward(self, x):
         residual = self.conv_res(x)
+        residual = downsample(residual)
 
         out = self.bn0(x)
         out = self.conv0(out)
@@ -68,6 +69,8 @@ class FirstBlockEncoder(nn.Module):
         out = self.bn1(out)
         out = self.activation(out)
         out = self.conv1(out)
+
+        out = downsample(out)
 
         return out + residual
 

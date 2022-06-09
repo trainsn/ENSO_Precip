@@ -8,25 +8,31 @@ import pdb
 
 root = "/fs/project/PAS0027/enso_precip/train"
 ts = 487
-low_lat, low_lon = 145, 288
+multiplier = 6
+low_lat, low_lon = 86 * multiplier, 160 * multiplier    # 20S ~ 66N, 155E ~ 45W
 precip = (-9999. * np.ones((ts, low_lat, low_lon))).astype(np.float32)
 for i in range(1981, 2022):
     for j in range(1, 13):
         if i == 2021 and j == 8:
             break
         f = nc.Dataset(os.path.join(root, "PRISM_ppt", "PRISM_ppt_" + str(i) + str(j).zfill(2) + ".nc"))
-        high_res = np.array(f["Band1"][:])[600-578:1170-578, :-1620+3000]
+        high_res = np.array(f["Band1"][:])[10:-11, :-1]   # (24.5N~49.5N, 125W~-66.5W) [600, 1404]
         high_res = torch.from_numpy(high_res).unsqueeze(0).unsqueeze(0).cuda()
-        low_res = F.interpolate(high_res, size=[20, 47], mode="bilinear")
+        low_res = F.interpolate(high_res, scale_factor =[multiplier / 24., multiplier / 24.], mode="bilinear")
         low_res = low_res.cpu().numpy().astype(np.float32)
-        precip[(i - 1981) * 12 + j - 1, low_lat//2+20:low_lat//2+40, low_lon-101:low_lon-54] = low_res
-        # print((low_res < 0).sum())
+        precip[(i - 1981) * 12 + j - 1, int(44.5 * multiplier + 0.5):int(69.5 * multiplier + 0.5),
+        int(80 * multiplier + 0.5):int(138.5 * multiplier + 0.5)]  = low_res
     print("finish year " + str(i))
 
 np.save(os.path.join(root, "PRISM_ppt.npy"), precip)
+precip[:, int(44.5 * multiplier + 0.5):int(69.5 * multiplier + 0.5), int(80 * multiplier + 0.5):int(138.5 * multiplier + 0.5)]\
+    .tofile(os.path.join(root, "PRISM_ppt.raw"))
+pdb.set_trace()
 
 high_lat, high_lon =  361, 576
 high_feat = np.zeros((6, ts, high_lat, high_lon), dtype=np.float32)
+sub_lat_st, sub_lat_en = 70 * 2, 156 * 2   # 20S ~ 66N
+sub_lon_st, sub_lon_en = int(155. / 0.625 + 0.5), int(315. / 0.625 + 0.5) # 155E ~ 45W
 
 f = nc.Dataset(os.path.join(root, "MERRA2_SLP_mo_80_22.nc"))
 slp = f["SLP"][:][12:12+ts]
@@ -57,7 +63,7 @@ high_feat[5].tofile(os.path.join(root, 'MERRA2_U_200hPa.raw'))
 low_feat = np.zeros((6, ts, low_lat, low_lon), dtype=np.float32)
 
 for i in range(ts):
-    high_res = torch.from_numpy(high_feat[:, i]).unsqueeze(0).cuda()
+    high_res = torch.from_numpy(high_feat[:, i, sub_lat_st:sub_lat_en, sub_lon_st:sub_lon_en]).unsqueeze(0).cuda()
     low_res = F.interpolate(high_res, size=[low_lat, low_lon], mode="bilinear")
     low_feat[:, i] = low_res.cpu().numpy().astype(np.float32)
 
