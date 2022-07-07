@@ -131,8 +131,8 @@ def main(args):
         g_model.train()
         train_l1_loss = 0.
         for i, sample in enumerate(train_loader):
-            input_feat = sample["input_feat"][:, :, -22:, :, :].to("cuda:0")
-            precip = sample["precip"][:, :, -1:, :, :].to("cuda:0")
+            input_feat = sample["input_feat"].to("cuda:0")
+            precip = sample["precip"].to("cuda:0")
 
             g_optimizer.zero_grad()
             precip_mask = precip < -1.
@@ -147,9 +147,12 @@ def main(args):
             g_optimizer.step()
             train_l1_loss += l1_loss.item()
 
-        if epoch % args.log_every == 0:
-            print("====> Epoch: {} Average L1_loss: {:.4f}".format(
-                epoch, train_l1_loss / len(train_loader.dataset)))
+            if i % args.log_every == 0:
+                print("Train Epoch: {} [{}/{} ({:.0f}%)]\tL1_Loss: {:.6f}".format(
+                    epoch, i, len(train_loader.dataset), 100. * i / len(train_loader), l1_loss.detach().item()))
+
+        print("====> Epoch: {} Average L1_loss: {:.4f}".format(
+            epoch, train_l1_loss / len(train_loader.dataset)))
 
         if (epoch + 1) % args.check_every == 0:
             print("=> saving checkpoint at epoch {}".format(epoch + 1))

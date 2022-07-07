@@ -8,7 +8,7 @@ import pdb
 
 root = "/fs/project/PAS0027/enso_precip/train"
 ts = 487
-multiplier = 6
+multiplier = 4
 low_lat, low_lon = 86 * multiplier, 160 * multiplier    # 20S ~ 66N, 155E ~ 45W
 precip = (-9999. * np.ones((ts, low_lat, low_lon))).astype(np.float32)
 for i in range(1981, 2022):
@@ -30,7 +30,7 @@ precip[:, int(44.5 * multiplier + 0.5):int(69.5 * multiplier + 0.5), int(80 * mu
 pdb.set_trace()
 
 high_lat, high_lon =  361, 576
-high_feat = np.zeros((6, ts, high_lat, high_lon), dtype=np.float32)
+high_feat = np.zeros((7, ts, high_lat, high_lon), dtype=np.float32)
 sub_lat_st, sub_lat_en = 70 * 2, 156 * 2   # 20S ~ 66N
 sub_lon_st, sub_lon_en = int(155. / 0.625 + 0.5), int(315. / 0.625 + 0.5) # 155E ~ 45W
 
@@ -60,7 +60,13 @@ high_feat[4:6, :, :, high_lon//2:] = u[:, :, :, :high_lon//2]    # west
 high_feat[4].tofile(os.path.join(root, 'MERRA2_U_250hPa.raw'))
 high_feat[5].tofile(os.path.join(root, 'MERRA2_U_200hPa.raw'))
 
-low_feat = np.zeros((6, ts, low_lat, low_lon), dtype=np.float32)
+f = nc.Dataset(os.path.join(root, "MERRA2_SST_80_21.nc"))
+sst = f["SST"][:][12:12+ts]
+high_feat[6, :, :, :high_lon//2] = t2[:, :, high_lon//2:]   # east
+high_feat[6, :, :, high_lon//2:] = t2[:, :, :high_lon//2]    # west
+high_feat[6].tofile(os.path.join(root, 'MERRA2_SST.raw'))
+
+low_feat = np.zeros((7, ts, low_lat, low_lon), dtype=np.float32)
 
 for i in range(ts):
     high_res = torch.from_numpy(high_feat[:, i, sub_lat_st:sub_lat_en, sub_lon_st:sub_lon_en]).unsqueeze(0).cuda()

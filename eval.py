@@ -35,9 +35,6 @@ def parse_args():
     parser.add_argument("--resume", type=str, default="",
                         help="path to the latest checkpoint (default: none)")
 
-    parser.add_argument("--range", type=int, default=120,
-                        help="the month range (default: 120)")
-
     parser.add_argument("--ch", type=int, default=64,
                         help="channel multiplier (default: 64)")
 
@@ -68,7 +65,7 @@ def main(args):
 
     kwargs = {"num_workers": 4, "pin_memory": True}
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
-                              shuffle=True, **kwargs)
+                              shuffle=False, **kwargs)
 
     def add_sn(m):
         for name, c in m.named_children():
@@ -98,23 +95,24 @@ def main(args):
     g_model.train()  # In BatchNorm, we still want the mean and var calculated from the current instance
 
     precip_min = 0.
-    precip_max = 1088.1039
+    precip_max = 1908.8616
     with torch.no_grad():
         for i, sample in enumerate(train_loader):
-            pdb.set_trace()
+            index = sample["index"].item()
             input_feat = sample["input_feat"].to("cuda:0")
             precip = sample["precip"].to("cuda:0")
+            precip_mask = precip < -1.
 
-            input_feat = input_feat[:, :, -args.range:, :, :]
             fake_precip = g_model(input_feat)
-            print(abs(fake_precip - precip).mean().item(), abs(fake_precip - precip).max().item())
+            fake_precip[precip_mask] = precip[precip_mask]
+            print(index, (abs(fake_precip - precip).sum() / (~precip_mask).sum()).item(), abs(fake_precip - precip).max().item())
 
             if args.save:
                 fake_precip = fake_precip * (precip_max - precip_min) / 2. + (precip_max + precip_min) / 2.
-                fake_precip.cpu().numpy().astype(np.float32).\
-                    tofile(os.path.join(args.root, "train", "AnomPrecip_1979-2020_pred.raw"))
+                multiplier = 6
+                fake_precip[0, 0, 0, int(44.5 * multiplier + 0.5):int(69.5 * multiplier + 0.5),
+                int(80 * multiplier + 0.5):int(138.5 * multiplier + 0.5)]\
+                    .cpu().numpy().astype(np.float32).tofile(os.path.join(args.root, "train", "PRISM_ppt_pred" + str(index) + ".raw"))
 
 if __name__ == "__main__":
     main(parse_args())
-
-

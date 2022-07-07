@@ -15,17 +15,17 @@ class Generator(nn.Module):
 
         self.ch = ch
 
-        self.BE0 = FirstBlockEncoder(6, 1 * ch)
+        self.BE0 = FirstBlockEncoder(7, 1 * ch)
         self.BE1 = BasicBlockEncoder(1 * ch, 2 * ch)
         self.BE2 = BasicBlockEncoder(2 * ch, 4 * ch)
         self.BE3 = BasicBlockEncoder(4 * ch, 8 * ch)
         self.BE4 = BasicBlockEncoder(8 * ch, 16 * ch)
 
-        self.BD0 = BasicBlockDecoder(16 * ch, 8 * ch, [32, 60])
-        self.BD1 = BasicBlockDecoder(8 * ch, 4 * ch, [64, 120])
-        self.BD2 = BasicBlockDecoder(4 * ch, 2 * ch, [129, 240])
-        self.BD3 = BasicBlockDecoder(2 * ch, 1 * ch, [258, 480])
-        self.BD4 = BasicBlockDecoder(1 * ch, 1 * ch, [516, 960])
+        self.BD0 = BasicBlockDecoder(16 * ch, 8 * ch, [21, 40])
+        self.BD1 = BasicBlockDecoder(8 * ch, 4 * ch, [43, 80])
+        self.BD2 = BasicBlockDecoder(4 * ch, 2 * ch, [86, 160])
+        self.BD3 = BasicBlockDecoder(2 * ch, 1 * ch, [172, 320])
+        self.BD4 = BasicBlockDecoder(1 * ch, 1 * ch, [344, 640])
         self.BD5 = nn.Sequential(
             nn.BatchNorm3d(ch),
             nn.ReLU(),
