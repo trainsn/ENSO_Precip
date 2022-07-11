@@ -109,7 +109,7 @@ def main(args):
 
             if args.save:
                 fake_precip = fake_precip * (precip_max - precip_min) / 2. + (precip_max + precip_min) / 2.
-                multiplier = 6
+                multiplier = 4
                 fake_precip[0, 0, 0, int(44.5 * multiplier + 0.5):int(69.5 * multiplier + 0.5),
                 int(80 * multiplier + 0.5):int(138.5 * multiplier + 0.5)]\
                     .cpu().numpy().astype(np.float32).tofile(os.path.join(args.root, "train", "PRISM_ppt_pred" + str(index) + ".raw"))
