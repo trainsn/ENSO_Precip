@@ -16,7 +16,7 @@ for i in range(1981, 2022):
         if i == 2021 and j == 8:
             break
         f = nc.Dataset(os.path.join(root, "PRISM_ppt", "PRISM_ppt_" + str(i) + str(j).zfill(2) + ".nc"))
-        high_res = np.array(f["Band1"][:])[10:-11, :-1]   # (24.5N~49.5N, 125W~-66.5W) [600, 1404]
+        high_res = np.array(f["Band1"][:])[10:-11, :-1]   # (24.5N~49.5N, 125W~66.5W) [600, 1404]
         high_res = torch.from_numpy(high_res).unsqueeze(0).unsqueeze(0).cuda()
         low_res = F.interpolate(high_res, scale_factor =[multiplier / 24., multiplier / 24.], mode="bilinear")
         low_res = low_res.cpu().numpy().astype(np.float32)

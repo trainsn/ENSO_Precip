@@ -1,4 +1,4 @@
-# main file
+# sensitivity file
 
 from __future__ import absolute_import, division, print_function
 
@@ -42,6 +42,12 @@ def parse_args():
     parser.add_argument("--batch-size", type=int, default=1,
                         help="batch size for training (default: 1)")
 
+    parser.add_argument("--time-idx", required=True, type=int,
+                        help="precip temporal index")
+    parser.add_argument("--lat-idx", required=True, type=int,
+                        help="precip latitude index")
+    parser.add_argument("--lon-idx", required=True, type=int,
+                        help="precip longitude index")
     parser.add_argument("--save", action="store_true", default=False,
                         help="save the npy file")
 
@@ -55,15 +61,6 @@ def main(args):
     # set random seed
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
-
-    # data loader
-    train_dataset = ENSOPrecipDataset(
-        root=args.root,
-        transform=transforms.Compose([Normalize(), ToTensor()]))
-
-    kwargs = {"num_workers": 4, "pin_memory": True}
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
-                              shuffle=False, **kwargs)
 
     # model
     def add_sn(m):
@@ -91,23 +88,39 @@ def main(args):
 
     g_model.train()  # In BatchNorm, we still want the mean and var calculated from the current instance
 
+    enso_input_feat = np.load(os.path.join(args.root, "train", "input_feat.npy"))
+    enso_precip = np.load(os.path.join(args.root, "train", "PRISM_ppt.npy"))
+    recep_field = 22
+    input_feat = enso_input_feat[:, args.time_idx - recep_field + 1: args.time_idx + 1]
+    precip = enso_precip[args.time_idx]
+
+    input_feat_min = np.array([95827.602, 199.63177, 4644.373, 4644.373, -21.138626, -21.138626, 267.872]).reshape((-1, 1, 1, 1))
+    input_feat_max = np.array([104431.23, 314.57242, 5970.5391, 5970.5391, 87.681274, 87.681274, 309.222]).reshape((-1, 1, 1, 1))
+    input_feat = ((input_feat - (input_feat_min + input_feat_max) / 2.)
+                  / ((input_feat_max - input_feat_min) / 2.)).astype(np.float32)
+
     precip_min = 0.
     precip_max = 1908.8616
-    for i, sample in enumerate(train_loader):
-        index = sample["index"].item()
-        input_feat = Variable(sample["input_feat"], requires_grad=True).to("cuda:0")
-        precip = sample["precip"].to("cuda:0")
-        precip_mask = precip < -1.
+    precip = ((precip - (precip_min + precip_max) / 2.) / ((precip_max - precip_min) / 2.)).astype(np.float32)
 
-        fake_precip = g_model(input_feat)
-        grad = torch.autograd.grad(fake_precip[~precip_mask].norm(p=1), input_feat)
-        print("{:d}:".format(index))
-        for j in range(grad[0].shape[2]):
-            print("\t{:d}, {:.6f}".format(j, abs(grad[0][0, :, j]).mean().item()))
-        del input_feat, precip, precip_mask, fake_precip
+    input_feat = Variable(torch.from_numpy(input_feat).unsqueeze(0), requires_grad=True).to("cuda:0")
+    precip = torch.from_numpy(precip).to("cuda:0")
+    precip_mask = torch.ones_like(precip)
+    multiplier = 4
+    precip_mask[int(44.5 * multiplier + 0.5) + args.lat_idx : int(44.5 * multiplier + 0.5) + args.lat_idx + 2,
+           int(80 * multiplier + 0.5) + args.lon_idx : int(80 * multiplier + 0.5) + args.lon_idx + 2] = 0
+    pdb.set_trace()
+    precip_mask = (precip_mask + (precip < -1.)).bool()
 
-        if args.save:
-            np.save(os.path.join(args.root, "train", "grad", "grad_" + str(index)), grad[0][0].cpu().numpy())
+    fake_precip = g_model(input_feat)
+    grad = torch.autograd.grad(fake_precip[0, 0, 0][~precip_mask].norm(p=1), input_feat)
+    print("{:d}:".format(args.time_idx))
+    for j in range(grad[0].shape[2]):
+        print("\t{:d}, {:.6f}".format(j, abs(grad[0][0, :, j]).sum().item()))
+    del input_feat, precip, precip_mask, fake_precip
+
+    if args.save:
+        np.save(os.path.join(args.root, "train", "gradient", "grad_" + str(args.time_idx)), grad[0][0].cpu().numpy())
 
 if __name__ == "__main__":
     main(parse_args())

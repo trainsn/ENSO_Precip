@@ -15,10 +15,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 
-import sys
-sys.path.append("/root/apex")
-from apex import amp
-
 from ENSOPrecip import *
 from generator import Generator
 from resblock import *
