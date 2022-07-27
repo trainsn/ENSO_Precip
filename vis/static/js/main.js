@@ -1,8 +1,8 @@
 var parameters =  {"OmM": .12, "OmB": .0215, "h": .55, "theta": 0., "phi": 0.};
 var chart0, chart1, chart2;
 
-var canvasCopy = document.createElement("canvas");
-var copyContext = canvasCopy.getContext("2d");
+var canvas = $("#image")["0"];
+var ctx = canvas.getContext("2d");
 
 function init() {
   // init sliders
@@ -168,19 +168,19 @@ function update_month(selectObject) {
     data: month_idx,
     type: "POST",
     success: function(response) {
-      var canv = $("#image")["0"];
-      var ctx = canv.getContext("2d");
+      var canvas = $("#image")["0"];
+      var ctx = canvas.getContext("2d");
 
-      var imgData = ctx.createImageData(canv.width, canv.height); // width x height
+      var imgData = ctx.createImageData(canvas.width, canvas.height); // width x height
       var data = imgData.data;
 
       // copy img byte-per-byte into our ImageData
-      for (var i = 0; i < canv.height; i++) {
-        for (var j = 0; j < canv.width; j++){
-            data[(i * canv.width + j) * 4] = response.image[((canv.height - 1 - i) * canv.width + j)] * 127.5 + 127.5
-            data[(i * canv.width + j) * 4 + 1] = response.image[((canv.height - 1 - i) * canv.width + j)] * 127.5 + 127.5
-            data[(i * canv.width + j) * 4 + 2] = response.image[((canv.height - 1 - i) * canv.width + j)] * 127.5 + 127.5
-            data[(i * canv.width + j) * 4 + 3] = 255.
+      for (var i = 0; i < canvas.height; i++) {
+        for (var j = 0; j < canvas.width; j++){
+            data[(i * canvas.width + j) * 4] = response.image[((canvas.height - 1 - i) * canvas.width + j) * 4]
+            data[(i * canvas.width + j) * 4 + 1] = response.image[((canvas.height - 1 - i) * canvas.width + j) * 4 + 1]
+            data[(i * canvas.width + j) * 4 + 2] = response.image[((canvas.height - 1 - i) * canvas.width + j) * 4 + 2]
+            data[(i * canvas.width + j) * 4 + 3] = response.image[((canvas.height - 1 - i) * canvas.width + j) * 4 + 3]
         }
       }
 
