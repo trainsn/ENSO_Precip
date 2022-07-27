@@ -1,0 +1,28 @@
+/*Copyright 2019 The IEVA-DGM Authors. All rights reserved.
+Use of this source code is governed by a MIT-style license that can be
+found in the LICENSE file.*/
+
+html, body {
+  font-family: Myriad Pro;
+  -webkit-font-smoothing: antialiased;
+  width: 1280px;
+  background-color: white;
+}
+
+.prm_cat {
+  margin: 10px 0px 0px 10px;
+}
+
+.toolbar_label {
+  margin-top:2px;
+  display:inline-block;
+}
+
+ .rlabel {
+/*  margin-top:10px;*/
+  margin-left: 20px;
+}
+
+ #canvasCopy {
+  background-color: white;
+}

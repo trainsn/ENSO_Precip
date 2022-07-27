@@ -1,0 +1,536 @@
+<!-- Copyright 2019 The IEVA-DGM Authors. All rights reserved.
+Use of this source code is governed by a MIT-style license that can be
+found in the LICENSE file. -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Deep Ensemble Vis</title>
+    <link rel="stylesheet" href="../static/lib/jquery-ui-1.12.1/jquery-ui.min.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/c3.min.css">
+  </head>
+
+  <body onload="init()">
+    <div id="main_panel" style="width:1040px; height:600px; background-color: white;">
+      <!-- image view -->
+      <div id="image_panel" style="float:left; width:520px; background-color: white;">
+        <div id="image_header" style="height:24px; width:520px; background-color: white;" class="toolbar ui-widget-header ui-corner-all ui-accordion-header">
+          <label class="toolbar_label">&nbsp;Precipitation View</label>
+          <span style="float: right">
+            <label class="toolbar_label" for="month">Year and Month</label>
+            <select name="month" id="month" onchange="update_month(this)">
+              <option selected="selected">None</option>
+              <option>Oct-82</option>
+              <option>Nov-82</option>
+              <option>Dec-82</option>
+              <option>Jan-83</option>
+              <option>Feb-83</option>
+              <option>Mar-83</option>
+              <option>Apr-83</option>
+              <option>May-83</option>
+              <option>Jun-83</option>
+              <option>Jul-83</option>
+              <option>Aug-83</option>
+              <option>Sep-83</option>
+              <option>Oct-83</option>
+              <option>Nov-83</option>
+              <option>Dec-83</option>
+              <option>Jan-84</option>
+              <option>Feb-84</option>
+              <option>Mar-84</option>
+              <option>Apr-84</option>
+              <option>May-84</option>
+              <option>Jun-84</option>
+              <option>Jul-84</option>
+              <option>Aug-84</option>
+              <option>Sep-84</option>
+              <option>Oct-84</option>
+              <option>Nov-84</option>
+              <option>Dec-84</option>
+              <option>Jan-85</option>
+              <option>Feb-85</option>
+              <option>Mar-85</option>
+              <option>Apr-85</option>
+              <option>May-85</option>
+              <option>Jun-85</option>
+              <option>Jul-85</option>
+              <option>Aug-85</option>
+              <option>Sep-85</option>
+              <option>Oct-85</option>
+              <option>Nov-85</option>
+              <option>Dec-85</option>
+              <option>Jan-86</option>
+              <option>Feb-86</option>
+              <option>Mar-86</option>
+              <option>Apr-86</option>
+              <option>May-86</option>
+              <option>Jun-86</option>
+              <option>Jul-86</option>
+              <option>Aug-86</option>
+              <option>Sep-86</option>
+              <option>Oct-86</option>
+              <option>Nov-86</option>
+              <option>Dec-86</option>
+              <option>Jan-87</option>
+              <option>Feb-87</option>
+              <option>Mar-87</option>
+              <option>Apr-87</option>
+              <option>May-87</option>
+              <option>Jun-87</option>
+              <option>Jul-87</option>
+              <option>Aug-87</option>
+              <option>Sep-87</option>
+              <option>Oct-87</option>
+              <option>Nov-87</option>
+              <option>Dec-87</option>
+              <option>Jan-88</option>
+              <option>Feb-88</option>
+              <option>Mar-88</option>
+              <option>Apr-88</option>
+              <option>May-88</option>
+              <option>Jun-88</option>
+              <option>Jul-88</option>
+              <option>Aug-88</option>
+              <option>Sep-88</option>
+              <option>Oct-88</option>
+              <option>Nov-88</option>
+              <option>Dec-88</option>
+              <option>Jan-89</option>
+              <option>Feb-89</option>
+              <option>Mar-89</option>
+              <option>Apr-89</option>
+              <option>May-89</option>
+              <option>Jun-89</option>
+              <option>Jul-89</option>
+              <option>Aug-89</option>
+              <option>Sep-89</option>
+              <option>Oct-89</option>
+              <option>Nov-89</option>
+              <option>Dec-89</option>
+              <option>Jan-90</option>
+              <option>Feb-90</option>
+              <option>Mar-90</option>
+              <option>Apr-90</option>
+              <option>May-90</option>
+              <option>Jun-90</option>
+              <option>Jul-90</option>
+              <option>Aug-90</option>
+              <option>Sep-90</option>
+              <option>Oct-90</option>
+              <option>Nov-90</option>
+              <option>Dec-90</option>
+              <option>Jan-91</option>
+              <option>Feb-91</option>
+              <option>Mar-91</option>
+              <option>Apr-91</option>
+              <option>May-91</option>
+              <option>Jun-91</option>
+              <option>Jul-91</option>
+              <option>Aug-91</option>
+              <option>Sep-91</option>
+              <option>Oct-91</option>
+              <option>Nov-91</option>
+              <option>Dec-91</option>
+              <option>Jan-92</option>
+              <option>Feb-92</option>
+              <option>Mar-92</option>
+              <option>Apr-92</option>
+              <option>May-92</option>
+              <option>Jun-92</option>
+              <option>Jul-92</option>
+              <option>Aug-92</option>
+              <option>Sep-92</option>
+              <option>Oct-92</option>
+              <option>Nov-92</option>
+              <option>Dec-92</option>
+              <option>Jan-93</option>
+              <option>Feb-93</option>
+              <option>Mar-93</option>
+              <option>Apr-93</option>
+              <option>May-93</option>
+              <option>Jun-93</option>
+              <option>Jul-93</option>
+              <option>Aug-93</option>
+              <option>Sep-93</option>
+              <option>Oct-93</option>
+              <option>Nov-93</option>
+              <option>Dec-93</option>
+              <option>Jan-94</option>
+              <option>Feb-94</option>
+              <option>Mar-94</option>
+              <option>Apr-94</option>
+              <option>May-94</option>
+              <option>Jun-94</option>
+              <option>Jul-94</option>
+              <option>Aug-94</option>
+              <option>Sep-94</option>
+              <option>Oct-94</option>
+              <option>Nov-94</option>
+              <option>Dec-94</option>
+              <option>Jan-95</option>
+              <option>Feb-95</option>
+              <option>Mar-95</option>
+              <option>Apr-95</option>
+              <option>May-95</option>
+              <option>Jun-95</option>
+              <option>Jul-95</option>
+              <option>Aug-95</option>
+              <option>Sep-95</option>
+              <option>Oct-95</option>
+              <option>Nov-95</option>
+              <option>Dec-95</option>
+              <option>Jan-96</option>
+              <option>Feb-96</option>
+              <option>Mar-96</option>
+              <option>Apr-96</option>
+              <option>May-96</option>
+              <option>Jun-96</option>
+              <option>Jul-96</option>
+              <option>Aug-96</option>
+              <option>Sep-96</option>
+              <option>Oct-96</option>
+              <option>Nov-96</option>
+              <option>Dec-96</option>
+              <option>Jan-97</option>
+              <option>Feb-97</option>
+              <option>Mar-97</option>
+              <option>Apr-97</option>
+              <option>May-97</option>
+              <option>Jun-97</option>
+              <option>Jul-97</option>
+              <option>Aug-97</option>
+              <option>Sep-97</option>
+              <option>Oct-97</option>
+              <option>Nov-97</option>
+              <option>Dec-97</option>
+              <option>Jan-98</option>
+              <option>Feb-98</option>
+              <option>Mar-98</option>
+              <option>Apr-98</option>
+              <option>May-98</option>
+              <option>Jun-98</option>
+              <option>Jul-98</option>
+              <option>Aug-98</option>
+              <option>Sep-98</option>
+              <option>Oct-98</option>
+              <option>Nov-98</option>
+              <option>Dec-98</option>
+              <option>Jan-99</option>
+              <option>Feb-99</option>
+              <option>Mar-99</option>
+              <option>Apr-99</option>
+              <option>May-99</option>
+              <option>Jun-99</option>
+              <option>Jul-99</option>
+              <option>Aug-99</option>
+              <option>Sep-99</option>
+              <option>Oct-99</option>
+              <option>Nov-99</option>
+              <option>Dec-99</option>
+              <option>Jan-00</option>
+              <option>Feb-00</option>
+              <option>Mar-00</option>
+              <option>Apr-00</option>
+              <option>May-00</option>
+              <option>Jun-00</option>
+              <option>Jul-00</option>
+              <option>Aug-00</option>
+              <option>Sep-00</option>
+              <option>Oct-00</option>
+              <option>Nov-00</option>
+              <option>Dec-00</option>
+              <option>Jan-01</option>
+              <option>Feb-01</option>
+              <option>Mar-01</option>
+              <option>Apr-01</option>
+              <option>May-01</option>
+              <option>Jun-01</option>
+              <option>Jul-01</option>
+              <option>Aug-01</option>
+              <option>Sep-01</option>
+              <option>Oct-01</option>
+              <option>Nov-01</option>
+              <option>Dec-01</option>
+              <option>Jan-02</option>
+              <option>Feb-02</option>
+              <option>Mar-02</option>
+              <option>Apr-02</option>
+              <option>May-02</option>
+              <option>Jun-02</option>
+              <option>Jul-02</option>
+              <option>Aug-02</option>
+              <option>Sep-02</option>
+              <option>Oct-02</option>
+              <option>Nov-02</option>
+              <option>Dec-02</option>
+              <option>Jan-03</option>
+              <option>Feb-03</option>
+              <option>Mar-03</option>
+              <option>Apr-03</option>
+              <option>May-03</option>
+              <option>Jun-03</option>
+              <option>Jul-03</option>
+              <option>Aug-03</option>
+              <option>Sep-03</option>
+              <option>Oct-03</option>
+              <option>Nov-03</option>
+              <option>Dec-03</option>
+              <option>Jan-04</option>
+              <option>Feb-04</option>
+              <option>Mar-04</option>
+              <option>Apr-04</option>
+              <option>May-04</option>
+              <option>Jun-04</option>
+              <option>Jul-04</option>
+              <option>Aug-04</option>
+              <option>Sep-04</option>
+              <option>Oct-04</option>
+              <option>Nov-04</option>
+              <option>Dec-04</option>
+              <option>Jan-05</option>
+              <option>Feb-05</option>
+              <option>Mar-05</option>
+              <option>Apr-05</option>
+              <option>May-05</option>
+              <option>Jun-05</option>
+              <option>Jul-05</option>
+              <option>Aug-05</option>
+              <option>Sep-05</option>
+              <option>Oct-05</option>
+              <option>Nov-05</option>
+              <option>Dec-05</option>
+              <option>Jan-06</option>
+              <option>Feb-06</option>
+              <option>Mar-06</option>
+              <option>Apr-06</option>
+              <option>May-06</option>
+              <option>Jun-06</option>
+              <option>Jul-06</option>
+              <option>Aug-06</option>
+              <option>Sep-06</option>
+              <option>Oct-06</option>
+              <option>Nov-06</option>
+              <option>Dec-06</option>
+              <option>Jan-07</option>
+              <option>Feb-07</option>
+              <option>Mar-07</option>
+              <option>Apr-07</option>
+              <option>May-07</option>
+              <option>Jun-07</option>
+              <option>Jul-07</option>
+              <option>Aug-07</option>
+              <option>Sep-07</option>
+              <option>Oct-07</option>
+              <option>Nov-07</option>
+              <option>Dec-07</option>
+              <option>Jan-08</option>
+              <option>Feb-08</option>
+              <option>Mar-08</option>
+              <option>Apr-08</option>
+              <option>May-08</option>
+              <option>Jun-08</option>
+              <option>Jul-08</option>
+              <option>Aug-08</option>
+              <option>Sep-08</option>
+              <option>Oct-08</option>
+              <option>Nov-08</option>
+              <option>Dec-08</option>
+              <option>Jan-09</option>
+              <option>Feb-09</option>
+              <option>Mar-09</option>
+              <option>Apr-09</option>
+              <option>May-09</option>
+              <option>Jun-09</option>
+              <option>Jul-09</option>
+              <option>Aug-09</option>
+              <option>Sep-09</option>
+              <option>Oct-09</option>
+              <option>Nov-09</option>
+              <option>Dec-09</option>
+              <option>Jan-10</option>
+              <option>Feb-10</option>
+              <option>Mar-10</option>
+              <option>Apr-10</option>
+              <option>May-10</option>
+              <option>Jun-10</option>
+              <option>Jul-10</option>
+              <option>Aug-10</option>
+              <option>Sep-10</option>
+              <option>Oct-10</option>
+              <option>Nov-10</option>
+              <option>Dec-10</option>
+              <option>Jan-11</option>
+              <option>Feb-11</option>
+              <option>Mar-11</option>
+              <option>Apr-11</option>
+              <option>May-11</option>
+              <option>Jun-11</option>
+              <option>Jul-11</option>
+              <option>Aug-11</option>
+              <option>Sep-11</option>
+              <option>Oct-11</option>
+              <option>Nov-11</option>
+              <option>Dec-11</option>
+              <option>Jan-12</option>
+              <option>Feb-12</option>
+              <option>Mar-12</option>
+              <option>Apr-12</option>
+              <option>May-12</option>
+              <option>Jun-12</option>
+              <option>Jul-12</option>
+              <option>Aug-12</option>
+              <option>Sep-12</option>
+              <option>Oct-12</option>
+              <option>Nov-12</option>
+              <option>Dec-12</option>
+              <option>Jan-13</option>
+              <option>Feb-13</option>
+              <option>Mar-13</option>
+              <option>Apr-13</option>
+              <option>May-13</option>
+              <option>Jun-13</option>
+              <option>Jul-13</option>
+              <option>Aug-13</option>
+              <option>Sep-13</option>
+              <option>Oct-13</option>
+              <option>Nov-13</option>
+              <option>Dec-13</option>
+              <option>Jan-14</option>
+              <option>Feb-14</option>
+              <option>Mar-14</option>
+              <option>Apr-14</option>
+              <option>May-14</option>
+              <option>Jun-14</option>
+              <option>Jul-14</option>
+              <option>Aug-14</option>
+              <option>Sep-14</option>
+              <option>Oct-14</option>
+              <option>Nov-14</option>
+              <option>Dec-14</option>
+              <option>Jan-15</option>
+              <option>Feb-15</option>
+              <option>Mar-15</option>
+              <option>Apr-15</option>
+              <option>May-15</option>
+              <option>Jun-15</option>
+              <option>Jul-15</option>
+              <option>Aug-15</option>
+              <option>Sep-15</option>
+              <option>Oct-15</option>
+              <option>Nov-15</option>
+              <option>Dec-15</option>
+              <option>Jan-16</option>
+              <option>Feb-16</option>
+              <option>Mar-16</option>
+              <option>Apr-16</option>
+              <option>May-16</option>
+              <option>Jun-16</option>
+              <option>Jul-16</option>
+              <option>Aug-16</option>
+              <option>Sep-16</option>
+              <option>Oct-16</option>
+              <option>Nov-16</option>
+              <option>Dec-16</option>
+              <option>Jan-17</option>
+              <option>Feb-17</option>
+              <option>Mar-17</option>
+              <option>Apr-17</option>
+              <option>May-17</option>
+              <option>Jun-17</option>
+              <option>Jul-17</option>
+              <option>Aug-17</option>
+              <option>Sep-17</option>
+              <option>Oct-17</option>
+              <option>Nov-17</option>
+              <option>Dec-17</option>
+              <option>Jan-18</option>
+              <option>Feb-18</option>
+              <option>Mar-18</option>
+              <option>Apr-18</option>
+              <option>May-18</option>
+              <option>Jun-18</option>
+              <option>Jul-18</option>
+              <option>Aug-18</option>
+              <option>Sep-18</option>
+              <option>Oct-18</option>
+              <option>Nov-18</option>
+              <option>Dec-18</option>
+              <option>Jan-19</option>
+              <option>Feb-19</option>
+              <option>Mar-19</option>
+              <option>Apr-19</option>
+              <option>May-19</option>
+              <option>Jun-19</option>
+              <option>Jul-19</option>
+              <option>Aug-19</option>
+              <option>Sep-19</option>
+              <option>Oct-19</option>
+              <option>Nov-19</option>
+              <option>Dec-19</option>
+              <option>Jan-20</option>
+              <option>Feb-20</option>
+              <option>Mar-20</option>
+              <option>Apr-20</option>
+              <option>May-20</option>
+              <option>Jun-20</option>
+              <option>Jul-20</option>
+              <option>Aug-20</option>
+              <option>Sep-20</option>
+              <option>Oct-20</option>
+              <option>Nov-20</option>
+              <option>Dec-20</option>
+              <option>Jan-21</option>
+              <option>Feb-21</option>
+              <option>Mar-21</option>
+              <option>Apr-21</option>
+              <option>May-21</option>
+              <option>Jun-21</option>
+              <option>Jul-21</option>
+            </select>
+          </span>
+        </div>
+        <div id="image_content" style="float:left; background-color: white; width:1040px; height:687px;" class="ui-widget-content ui-corner-all">
+          <canvas id="image" width="468" height="200" style="background-color: white;"></canvas>
+        </div>
+      </div>
+
+<!--      &lt;!&ndash; parameters view &ndash;&gt;-->
+<!--      <div id="parameters_panel" style="float:left; width:520px; background-color: white;">-->
+<!--        <div id="parameters_header" style="height:24px; background-color: white;" class="toolbar ui-widget-header ui-corner-all ui-accordion-header">-->
+<!--          <label class="toolbar_label">&nbsp;Parameters View</label>-->
+<!--          <button style="float: right; margin-right: 4px; margin-top: 1px; background-color: white;" onclick="update_psens()">Compute Overall Sensitivity Curve</button>-->
+<!--        </div>-->
+<!--        <div id="parameters_content" style="float:left; width:520px; background-color: white;" class="ui-widget-content ui-corner-all">-->
+<!--          <div><h4 style="background-color: white;" class="prm_cat">Simulation Parameters</h4></div>-->
+<!--            <div style="background-color: white;" id="sim_sens0"></div>-->
+<!--            <div style="background-color: white;" id="sim_slider0"></div>-->
+<!--            <div style="background-color: white;" id="sim_sens1"></div>-->
+<!--            <div style="background-color: white;" id="sim_slider1"></div>-->
+<!--            <div style="background-color: white;" id="sim_sens2"></div>-->
+<!--            <div style="background-color: white;" id="sim_slider2"></div>-->
+<!--          <div><h4 class="prm_cat">View Parameters</h4></div>-->
+<!--            <div style="background-color: white;" id="vis_slider0"></div>-->
+<!--            <div style="background-color: white;" id="vis_slider1"></div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+
+    <!-- javascript libraries -->
+    <script src="../static/lib/d3.min.js"></script>
+    <script src="https://unpkg.com/d3-simple-slider"></script>
+
+    <script src="../static/lib/jquery-ui-1.12.1/external/jquery/jquery.js"></script>
+    <script src="../static/lib/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+
+    <script src="../static/lib/c3.min.js"></script>
+
+    <script src="../static/lib/kd_utils.js"></script>
+
+    <!-- main js file -->
+    <script src="../static/js/main.js"></script>
+  </body>
+</html>
