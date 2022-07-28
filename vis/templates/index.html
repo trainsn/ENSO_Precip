@@ -15,13 +15,13 @@ found in the LICENSE file. -->
   </head>
 
   <body onload="init()">
-    <div id="main_panel" style="width:1040px; height:600px; background-color: white;">
+    <div id="main_panel" style="width:1284px; height:712px; background-color: white;">
       <!-- image view -->
-      <div id="image_panel" style="float:left; width:520px; background-color: white;">
-        <div id="image_header" style="height:24px; width:520px; background-color: white;" class="toolbar ui-widget-header ui-corner-all ui-accordion-header">
+      <div id="image_panel" style="float:left; width:468px; background-color: white;">
+        <div id="image_header" style="height:24px; width:468px; background-color: white;" class="toolbar ui-widget-header ui-corner-all ui-accordion-header">
           <label class="toolbar_label">&nbsp;Precipitation View</label>
           <span style="float: right">
-            <label class="toolbar_label" for="month">Year and Month</label>
+            <label class="toolbar_label" for="month">Month and Year</label>
             <select name="month" id="month" onchange="update_month(this)">
               <option selected="selected">None</option>
               <option>Oct-82</option>
@@ -493,31 +493,64 @@ found in the LICENSE file. -->
             </select>
           </span>
         </div>
-        <div id="image_content" style="float:left; background-color: white; width:1040px; height:687px;" class="ui-widget-content ui-corner-all">
-          <canvas id="image" width="468" height="200" style="background-color: white;"></canvas>
+        <div id="precip_content" style="float:left; background-color: white; width:468px; height:200px;" class="ui-widget-content ui-corner-all">
+          <canvas id="precip" width="468" height="200" style="background-color: white;"></canvas>
         </div>
       </div>
 
-<!--      &lt;!&ndash; parameters view &ndash;&gt;-->
-<!--      <div id="parameters_panel" style="float:left; width:520px; background-color: white;">-->
-<!--        <div id="parameters_header" style="height:24px; background-color: white;" class="toolbar ui-widget-header ui-corner-all ui-accordion-header">-->
-<!--          <label class="toolbar_label">&nbsp;Parameters View</label>-->
-<!--          <button style="float: right; margin-right: 4px; margin-top: 1px; background-color: white;" onclick="update_psens()">Compute Overall Sensitivity Curve</button>-->
-<!--        </div>-->
-<!--        <div id="parameters_content" style="float:left; width:520px; background-color: white;" class="ui-widget-content ui-corner-all">-->
-<!--          <div><h4 style="background-color: white;" class="prm_cat">Simulation Parameters</h4></div>-->
-<!--            <div style="background-color: white;" id="sim_sens0"></div>-->
-<!--            <div style="background-color: white;" id="sim_slider0"></div>-->
-<!--            <div style="background-color: white;" id="sim_sens1"></div>-->
-<!--            <div style="background-color: white;" id="sim_slider1"></div>-->
-<!--            <div style="background-color: white;" id="sim_sens2"></div>-->
-<!--            <div style="background-color: white;" id="sim_slider2"></div>-->
-<!--          <div><h4 class="prm_cat">View Parameters</h4></div>-->
-<!--            <div style="background-color: white;" id="vis_slider0"></div>-->
-<!--            <div style="background-color: white;" id="vis_slider1"></div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
+      <!-- parameters view -->
+      <div id="parameters_panel" style="float:right; margin-top: 20px; width:1284px; background-color: white;">
+        <div id="parameters_header" style="height:24px; background-color: white;" class="toolbar ui-widget-header ui-corner-all ui-accordion-header">
+          <label class="toolbar_label">&nbsp;Input Variable View</label>
+          <span style="float: right">
+            <label class="toolbar_label" for="variable">Variable</label>
+            <select name="variable" id="variable">
+              <option selected="selected">None</option>
+              <option>SLP</option>
+              <option>T2</option>
+              <option>HGT_500hPa</option>
+              <option>HGT_250hPa</option>
+              <option>U_250hPa</option>
+              <option>U_200hPa</option>
+              <option>SST</option>
+            </select>
+            <label class="toolbar_label" for="variable">Relative Month</label>
+            <select name="relative_month" id="relative_month">
+              <option selected="selected">None</option>
+              <option>0</option>
+              <option>-1</option>
+              <option>-2</option>
+              <option>-3</option>
+              <option>-4</option>
+              <option>-5</option>
+              <option>-6</option>
+              <option>-7</option>
+              <option>-8</option>
+              <option>-9</option>
+              <option>-10</option>
+              <option>-11</option>
+              <option>-12</option>
+              <option>-13</option>
+              <option>-14</option>
+              <option>-15</option>
+              <option>-16</option>
+              <option>-17</option>
+              <option>-18</option>
+              <option>-19</option>
+              <option>-20</option>
+              <option>-21</option>
+            </select>
+            <button style="margin-right: 4px; margin-top: 1px; background-color: white;" onclick="update_variable_time()">Show Map</button>
+          </span>
+        </div>
+        <div id="variable_content" style="float:left; background-color: white; width:640px; height:344px;" class="ui-widget-content ui-corner-all">
+          <canvas id="variable_map" width="640" height="344" style="background-color: white;"></canvas>
+        </div>
+        <div id="sensitivity_content" style="float:right; background-color: white; width:640px; height:344px;" class="ui-widget-content ui-corner-all">
+          <canvas id="sensitivity_map" width="640" height="344" style="background-color: white;"></canvas>
+        </div>
+      </div>
+    </div>
 
     <!-- javascript libraries -->
     <script src="../static/lib/d3.min.js"></script>
