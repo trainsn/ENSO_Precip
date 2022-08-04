@@ -1,31 +1,106 @@
-var parameters =  {"OmM": .12, "OmB": .0215, "h": .55, "theta": 0., "phi": 0.};
-var chart0, chart1, chart2;
+var recep_field = 22
+var line_chart;
 
 var precip_canvas = $("#precip")["0"];
 var precip_ctx = precip_canvas.getContext("2d");
 var precip_imgData;
 
-precip_canvas.addEventListener("click", function __handler__(evt) {
-    var lon_idx = evt.clientX;
-    var lat_idx = evt.clientY;
-    var rect = precip_canvas.getBoundingClientRect();
-    lon_idx -= rect.left;
-    lat_idx -= rect.top;
-    precip_ctx.putImageData(precip_imgData, 0, 0);
-    precip_ctx.fillStyle = "#0000FF";
-    precip_ctx.fillRect(lon_idx - 2, lat_idx - 2, 4, 4);
-    lon_idx = parseInt(lon_idx / 2);
-    lat_idx = parseInt((precip_canvas.height - 1 - lat_idx) / 2);
-    spatial_indices = {"lat_idx": lat_idx, "lon_idx": lon_idx};
-    $.ajax({
-        url: "/backward_prop",
-        data: spatial_indices,
-        type: "POST",
-        error: function(error) {
-            console.log(error);
+var variable_canvas = $("#variable_map")["0"];
+var variable_ctx = variable_canvas.getContext("2d");
+
+var sensitivity_canvas = $("#sensitivity_map")["0"];
+var sensitivity_ctx = sensitivity_canvas.getContext("2d");
+
+function init() {
+    // init line chart
+    line_chart = c3.generate({
+        bindto: "#vari_sens",
+        data: {
+            columns: [
+                ['SLP', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ['T2', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ['HGT_500hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ['HGT_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ['U_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ['U_200hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ['SST', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ]
+        },
+        axis: {
+            x: {
+                tick: {
+                    format: function (x) { return -21 + x; }
+                },
+                label: "month"
+            },
+            y: {
+                tick: {
+                    format: function (y) { return y.toFixed(4); }
+                },
+                label: "sensitivity"
+            }
+        },
+        legend: {
+            show: true
+        },
+        size: {
+            height: 180,
+            width: 760
+        },
+        padding: {
+            left: 40,
+            bottom: 0
+        },
+        point: {
+            show: true
         }
-  });
-});
+    });
+
+    precip_canvas.addEventListener("click", function __handler__(evt) {
+        var lon_idx = evt.clientX;
+        var lat_idx = evt.clientY;
+        var rect = precip_canvas.getBoundingClientRect();
+        lon_idx -= rect.left;
+        lat_idx -= rect.top;
+        precip_ctx.putImageData(precip_imgData, 0, 0);
+        precip_ctx.fillStyle = "#0000FF";
+        precip_ctx.fillRect(lon_idx - 2, lat_idx - 2, 4, 4);
+        lon_idx = parseInt(lon_idx / 2);
+        lat_idx = parseInt((precip_canvas.height - 1 - lat_idx) / 2);
+        spatial_indices = {"lat_idx": lat_idx, "lon_idx": lon_idx};
+        $.ajax({
+            url: "/backward_prop",
+            data: spatial_indices,
+            type: "POST",
+            success: function(response) {
+                var slp = ['SLP'],
+                    t2 = ['T2'],
+                    ght_500hpa = ['HGT_500hPa'],
+                    ght_250hpa = ['HGT_250hPa'],
+                    u_250hpa = ['U_250hPa'],
+                    u_200hpa = ['U_200hPa'],
+                    sst = ['SST'];
+                for (i = 0; i < recep_field; i++){
+                    slp.push(response.grad_stats[recep_field * 0 + i]);
+                    t2.push(response.grad_stats[recep_field * 1 + i]);
+                    ght_500hpa.push(response.grad_stats[recep_field * 2 + i]);
+                    ght_250hpa.push(response.grad_stats[recep_field * 3 + i]);
+                    u_250hpa.push(response.grad_stats[recep_field * 4 + i]);
+                    u_200hpa.push(response.grad_stats[recep_field * 5 + i]);
+                    sst.push(response.grad_stats[recep_field * 6 + i]);
+                }
+                line_chart.load({
+                    columns: [
+                      slp, t2, ght_500hpa, ght_250hpa, u_250hpa, u_200hpa, sst
+                    ]
+                });
+            },
+            error: function(error) {
+                console.log(error);
+            }
+      });
+    });
+}
 
 function update_month(selectObject) {
     var time_idx = {"idx": selectObject.selectedIndex - 1};
@@ -34,6 +109,9 @@ function update_month(selectObject) {
         data: time_idx,
         type: "POST",
         success: function(response) {
+            variable_ctx.clearRect(0, 0, variable_canvas.width, variable_canvas.height);
+            sensitivity_ctx.clearRect(0, 0, sensitivity_canvas.width, sensitivity_canvas.height);
+
             precip_imgData = precip_ctx.createImageData(precip_canvas.width, precip_canvas.height); // width x height
             var data = precip_imgData.data;
 
@@ -72,9 +150,6 @@ function update_variable_time() {
         data: vari_relamonth_idx,
         type: "POST",
         success: function(response) {
-            var variable_canvas = $("#variable_map")["0"];
-            var variable_ctx = variable_canvas.getContext("2d");
-
             var variable_imgData = variable_ctx.createImageData(variable_canvas.width, variable_canvas.height); // width x height
             var variable_data = variable_imgData.data;
 
@@ -94,9 +169,6 @@ function update_variable_time() {
 
             // now we can draw our imagedata onto the canvas
             variable_ctx.putImageData(variable_imgData, 0, 0);
-
-            var sensitivity_canvas = $("#sensitivity_map")["0"];
-            var sensitivity_ctx = sensitivity_canvas.getContext("2d");
 
             var sensitivity_imgData = sensitivity_ctx.createImageData(sensitivity_canvas.width, sensitivity_canvas.height); // width x height
             var sensitivity_data = sensitivity_imgData.data;

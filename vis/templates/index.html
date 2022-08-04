@@ -8,13 +8,13 @@ found in the LICENSE file. -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Deep Ensemble Vis</title>
+    <title>Teleconnection Vis</title>
     <link rel="stylesheet" href="../static/lib/jquery-ui-1.12.1/jquery-ui.min.css">
     <link rel="stylesheet" href="../static/css/style.css">
     <link rel="stylesheet" href="../static/css/c3.min.css">
   </head>
 
-  <body>
+  <body onload="init()">
     <div id="main_panel" style="width:1284px; height:712px; background-color: white;">
       <!-- image view -->
       <div id="image_panel" style="float:left; width:468px; background-color: white;">
@@ -498,10 +498,20 @@ found in the LICENSE file. -->
         </div>
       </div>
 
-      <!-- parameters view -->
-      <div id="parameters_panel" style="float:right; margin-top: 20px; width:1284px; background-color: white;">
-        <div id="parameters_header" style="height:24px; background-color: white;" class="toolbar ui-widget-header ui-corner-all ui-accordion-header">
-          <label class="toolbar_label">&nbsp;Input Variable View</label>
+      <!-- temporal view -->
+      <div id="temporal_panel" style="float:right; width:800px; background-color: white;">
+        <div id="temporal_header" style="height:24px; width:800px; background-color: white;" class="toolbar ui-widget-header ui-corner-all ui-accordion-header">
+          <label class="toolbar_label">&nbsp;Variable Sensitivity Temporal View</label>
+        </div>
+        <div id="view_content" style="float:left; background-color: white; width:800px; height:200px;" class="ui-widget-content ui-corner-all">
+          <div style="background-color: white;" id="vari_sens"></div>
+        </div>
+      </div>
+
+      <!-- value_sensitivity spatial view -->
+      <div id="spatial_panel" style="float:right; margin-top: 20px; width:1284px; background-color: white;">
+        <div id="spatial_header" style="height:24px; background-color: white;" class="toolbar ui-widget-header ui-corner-all ui-accordion-header">
+          <label class="toolbar_label">&nbsp;Variable Value and Sensitivity Spatial View</label>
           <span style="float: right">
             <label class="toolbar_label" for="variable_name">Variable</label>
             <select name="variable_name" id="variable_name">

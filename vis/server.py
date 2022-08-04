@@ -173,11 +173,12 @@ def backward_prop():
     grad = None
     grad = torch.autograd.grad(fake_precip[~precip_mask].norm(p=1), input_feat)
     for j in range(grad[0].shape[2]):
-        print("\t{:d}, {:.6f}, {:.6f}, {:.6f}, {:.6f}, {:.6f}, {:.6f}, {:.6f}".
+        print("\t{:d}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}".
               format(j, abs(grad[0][0, 0, j]).sum().item(), abs(grad[0][0, 1, j]).sum().item(), abs(grad[0][0, 2, j]).sum().item(),
                      abs(grad[0][0, 3, j]).sum().item(), abs(grad[0][0, 4, j]).sum().item(), abs(grad[0][0, 5, j]).sum().item(),
                      abs(grad[0][0, 6, j]).sum().item()))
-    return jsonify({"status": 0})
+    grad_stats = abs(grad[0]).sum((3, 4))
+    return jsonify({"grad_stats": grad_stats.flatten().tolist()})
 
 @app.route("/retrieve_variable_time", methods=["POST"])
 def retrieve_variable_time():
