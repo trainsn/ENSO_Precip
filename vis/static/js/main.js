@@ -5,6 +5,10 @@ var precip_canvas = $("#precip")["0"];
 var precip_ctx = precip_canvas.getContext("2d");
 var precip_imgData;
 
+var scr_lon_idx, scr_lat_id;
+var scr_lon_offset = 320,
+    scr_lat_offset = 66
+
 var variable_canvas = $("#variable_map")["0"];
 var variable_ctx = variable_canvas.getContext("2d");
 
@@ -48,7 +52,7 @@ function init() {
             width: 760
         },
         padding: {
-            left: 40,
+            left: 60,
             bottom: 0
         },
         point: {
@@ -57,22 +61,27 @@ function init() {
     });
 
     precip_canvas.addEventListener("click", function __handler__(evt) {
-        var lon_idx = evt.clientX;
-        var lat_idx = evt.clientY;
+        scr_lon_idx = evt.clientX;
+        scr_lat_idx = evt.clientY;
         var rect = precip_canvas.getBoundingClientRect();
-        lon_idx -= rect.left;
-        lat_idx -= rect.top;
+        scr_lon_idx -= rect.left;
+        scr_lat_idx -= rect.top;
         precip_ctx.putImageData(precip_imgData, 0, 0);
         precip_ctx.fillStyle = "#0000FF";
-        precip_ctx.fillRect(lon_idx - 2, lat_idx - 2, 4, 4);
-        lon_idx = parseInt(lon_idx / 2);
-        lat_idx = parseInt((precip_canvas.height - 1 - lat_idx) / 2);
+        precip_ctx.fillRect(scr_lon_idx - 2, scr_lat_idx - 2, 4, 4);
+        var lon_idx = parseInt(scr_lon_idx / 2);
+        scr_lon_idx = lon_idx;
+        var lat_idx = parseInt((precip_canvas.height - 1 - scr_lat_idx) / 2);
+        scr_lat_idx = parseInt(scr_lat_idx / 2);
         spatial_indices = {"lat_idx": lat_idx, "lon_idx": lon_idx};
         $.ajax({
             url: "/backward_prop",
             data: spatial_indices,
             type: "POST",
             success: function(response) {
+                variable_ctx.clearRect(0, 0, variable_canvas.width, variable_canvas.height);
+                sensitivity_ctx.clearRect(0, 0, sensitivity_canvas.width, sensitivity_canvas.height);
+
                 var slp = ['SLP'],
                     t2 = ['T2'],
                     ght_500hpa = ['HGT_500hPa'],
@@ -169,6 +178,10 @@ function update_variable_time() {
 
             // now we can draw our imagedata onto the canvas
             variable_ctx.putImageData(variable_imgData, 0, 0);
+            variable_ctx.strokeStyle = '#2C0154';
+            variable_ctx.strokeRect(scr_lon_offset, scr_lat_offset, parseInt(precip_canvas.width) / 2 , parseInt(precip_canvas.height) / 2);
+            variable_ctx.fillStyle = "#000000";
+            variable_ctx.fillRect(scr_lon_idx - 1 + scr_lon_offset, scr_lat_idx - 1 + scr_lat_offset, 2, 2);
 
             var sensitivity_imgData = sensitivity_ctx.createImageData(sensitivity_canvas.width, sensitivity_canvas.height); // width x height
             var sensitivity_data = sensitivity_imgData.data;
@@ -189,6 +202,10 @@ function update_variable_time() {
 
             // now we can draw our imagedata onto the canvas
             sensitivity_ctx.putImageData(sensitivity_imgData, 0, 0);
+            sensitivity_ctx.strokeStyle = '#2C0154';
+            sensitivity_ctx.strokeRect(scr_lon_offset, scr_lat_offset, parseInt(precip_canvas.width) / 2 , parseInt(precip_canvas.height) / 2);
+            sensitivity_ctx.fillStyle = "#000000";
+            sensitivity_ctx.fillRect(scr_lon_idx - 1 + scr_lon_offset, scr_lat_idx - 1 + scr_lat_offset, 2, 2);
         },
         error: function(error) {
             console.log(error);
