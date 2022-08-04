@@ -173,12 +173,22 @@ def backward_prop():
     grad = None
     grad = torch.autograd.grad(fake_precip[~precip_mask].norm(p=1), input_feat)
     for j in range(grad[0].shape[2]):
-        print("\t{:d}, {:.6f}".format(j, abs(grad[0][0, :, j]).sum().item()))
+        print("\t{:d}, {:.6f}, {:.6f}, {:.6f}, {:.6f}, {:.6f}, {:.6f}, {:.6f}".
+              format(j, abs(grad[0][0, 0, j]).sum().item(), abs(grad[0][0, 1, j]).sum().item(), abs(grad[0][0, 2, j]).sum().item(),
+                     abs(grad[0][0, 3, j]).sum().item(), abs(grad[0][0, 4, j]).sum().item(), abs(grad[0][0, 5, j]).sum().item(),
+                     abs(grad[0][0, 6, j]).sum().item()))
     return jsonify({"status": 0})
 
-# @app.route("/retrieve_variable", methods=["POST"])
-# def retrieve_variable():
+@app.route("/retrieve_variable_time", methods=["POST"])
+def retrieve_variable_time():
+    variable_idx = int(request.form["variable_idx"])
+    variable_name = request.form["variable_name"]
+    relative_month = recep_field - int(request.form["relamonth_idx"])
+    print(variable_name, relative_month)
 
+    retrieved_values = input_feat[0, variable_idx, relative_month]
+    retrieved_sensitivity = grad[0][0, variable_idx, relative_month]
+    pdb.set_trace()
 
 if __name__ == "__main__":
     init(parse_args())

@@ -109,14 +109,16 @@ def main(args):
     multiplier = 4
     precip_mask[int(44.5 * multiplier + 0.5) + args.lat_idx : int(44.5 * multiplier + 0.5) + args.lat_idx + 2,
            int(80 * multiplier + 0.5) + args.lon_idx : int(80 * multiplier + 0.5) + args.lon_idx + 2] = 0
-    pdb.set_trace()
     precip_mask = (precip_mask + (precip < -1.)).bool()
 
     fake_precip = g_model(input_feat)
     grad = torch.autograd.grad(fake_precip[0, 0, 0][~precip_mask].norm(p=1), input_feat)
     print("{:d}:".format(args.time_idx))
     for j in range(grad[0].shape[2]):
-        print("\t{:d}, {:.6f}".format(j, abs(grad[0][0, :, j]).sum().item()))
+        print("\t{:d}, {:.6f}, {:.6f}, {:.6f}, {:.6f}, {:.6f}, {:.6f}, {:.6f}".
+              format(j, abs(grad[0][0, 0, j]).sum().item(), abs(grad[0][0, 1, j]).sum().item(), abs(grad[0][0, 2, j]).sum().item(),
+                     abs(grad[0][0, 3, j]).sum().item(), abs(grad[0][0, 4, j]).sum().item(), abs(grad[0][0, 5, j]).sum().item(),
+                     abs(grad[0][0, 6, j]).sum().item()))
     del input_feat, precip, precip_mask, fake_precip
 
     if args.save:

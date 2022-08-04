@@ -34,25 +34,25 @@ class Generator(nn.Module):
 
     def forward(self, x):
         x = self.BE0(x)
-        x = x[:, :, 2:].to("cuda:1")
+        x = x[:, :, 2:].to("cuda:1")    # 20
         x = self.BE1(x)
-        x = x[:, :, 2:]
+        x = x[:, :, 2:]     # 18
         x = self.BE2(x)
-        x = x[:, :, 2:]
+        x = x[:, :, 2:]     # 16
         x = self.BE3(x)
-        x = x[:, :, 2:]
+        x = x[:, :, 2:]     # 14
         x = self.BE4(x)
-        x = x[:, :, 2:]
+        x = x[:, :, 2:]     # 12
         x = self.BD0(x)
-        x = x[:, :, 2:]
+        x = x[:, :, 2:]     # 10
         x = self.BD1(x)
-        x = x[:, :, 2:]
+        x = x[:, :, 2:]     # 8
         x = self.BD2(x)
-        x = x[:, :, 2:]
+        x = x[:, :, 2:]     # 6
         x = self.BD3(x)
-        x = x[:, :, 2:].to("cuda:0")
+        x = x[:, :, 2:].to("cuda:0")     # 4
         x = self.BD4(x)
-        x = x[:, :, 2:]
+        x = x[:, :, 2:]     # 2
         x = self.BD5(x)
         x = x[:, :, 1:]
         x = F.tanh(x)

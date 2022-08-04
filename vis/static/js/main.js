@@ -28,71 +28,54 @@ precip_canvas.addEventListener("click", function __handler__(evt) {
 });
 
 function update_month(selectObject) {
-  var time_idx = {"idx": selectObject.selectedIndex - 1};
-  $.ajax({
-    url: "/forward_prop",
-    data: time_idx,
-    type: "POST",
-    success: function(response) {
-      precip_imgData = precip_ctx.createImageData(precip_canvas.width, precip_canvas.height); // width x height
-      var data = precip_imgData.data;
+    var time_idx = {"idx": selectObject.selectedIndex - 1};
+    $.ajax({
+        url: "/forward_prop",
+        data: time_idx,
+        type: "POST",
+        success: function(response) {
+            precip_imgData = precip_ctx.createImageData(precip_canvas.width, precip_canvas.height); // width x height
+            var data = precip_imgData.data;
 
-      // copy img byte-per-byte into our ImageData
-      for (var i = 0; i < precip_canvas.height; i++) {
-        for (var j = 0; j < precip_canvas.width; j++){
-            data[(i * precip_canvas.width + j) * 4] = response.image[((precip_canvas.height - 1 - i) * precip_canvas.width + j) * 4];
-            data[(i * precip_canvas.width + j) * 4 + 1] = response.image[((precip_canvas.height - 1 - i) * precip_canvas.width + j) * 4 + 1];
-            data[(i * precip_canvas.width + j) * 4 + 2] = response.image[((precip_canvas.height - 1 - i) * precip_canvas.width + j) * 4 + 2];
-            data[(i * precip_canvas.width + j) * 4 + 3] = response.image[((precip_canvas.height - 1 - i) * precip_canvas.width + j) * 4 + 3];
+            // copy img byte-per-byte into our ImageData
+            for (var i = 0; i < precip_canvas.height; i++) {
+                for (var j = 0; j < precip_canvas.width; j++){
+                    data[(i * precip_canvas.width + j) * 4] =
+                        response.image[((precip_canvas.height - 1 - i) * precip_canvas.width + j) * 4];
+                    data[(i * precip_canvas.width + j) * 4 + 1] =
+                        response.image[((precip_canvas.height - 1 - i) * precip_canvas.width + j) * 4 + 1];
+                    data[(i * precip_canvas.width + j) * 4 + 2] =
+                        response.image[((precip_canvas.height - 1 - i) * precip_canvas.width + j) * 4 + 2];
+                    data[(i * precip_canvas.width + j) * 4 + 3] =
+                        response.image[((precip_canvas.height - 1 - i) * precip_canvas.width + j) * 4 + 3];
+                }
+            }
+
+            // now we can draw our imagedata onto the canvas
+            precip_ctx.putImageData(precip_imgData, 0, 0);
+        },
+        error: function(error) {
+            console.log(error);
         }
-      }
-
-      // now we can draw our imagedata onto the canvas
-      precip_ctx.putImageData(precip_imgData, 0, 0);
-    },
-    error: function(error) {
-      console.log(error);
-    }
-  });
+    });
 }
 
 function update_variable_time() {
-  $.ajax({
-    url: "/psens",
-    data: parameters,
-    type: "POST",
-    success: function(response) {
-      var data0 = ['data0'],
-          data1 = ['data1'],
-          data2 = ['data2'];
-      for(var i = 0; i < 10; i++) {
-        for(var j = 0; j < 10; j++) {
-          data0.push(Math.abs(response.psens[i][j]))
-          data1.push(Math.abs(response.psens[10 + i][j]))
-          data2.push(Math.abs(response.psens[20 + i][j]))
+    var variable_select = document.getElementById("variable_name");
+    var variable_idx = variable_select.selectedIndex - 1;
+    var variable_name = variable_select.value
+    var relative_month_select = document.getElementById("relative_month");
+    var relative_month_idx = relative_month_select.selectedIndex;
+    var vari_relamonth_idx = {"variable_idx": variable_idx, "variable_name": variable_name, "relamonth_idx": relative_month_idx};
+    $.ajax({
+        url: "/retrieve_variable_time",
+        data: vari_relamonth_idx,
+        type: "POST",
+        success: function(response) {
+
+        },
+        error: function(error) {
+            console.log(error);
         }
-      }
-
-      chart0.load({
-        columns: [
-          data0
-        ]
-      });
-
-      chart1.load({
-        columns: [
-          data1
-        ]
-      });
-
-      chart2.load({
-        columns: [
-          data2
-        ]
-      });
-    },
-    error: function(error) {
-      console.log(error);
-    }
-  });
+    });
 }
