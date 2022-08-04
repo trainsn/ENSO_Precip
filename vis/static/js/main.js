@@ -72,7 +72,51 @@ function update_variable_time() {
         data: vari_relamonth_idx,
         type: "POST",
         success: function(response) {
+            var variable_canvas = $("#variable_map")["0"];
+            var variable_ctx = variable_canvas.getContext("2d");
 
+            var variable_imgData = variable_ctx.createImageData(variable_canvas.width, variable_canvas.height); // width x height
+            var variable_data = variable_imgData.data;
+
+            // copy img byte-per-byte into our ImageData
+            for (var i = 0; i < variable_canvas.height; i++) {
+                for (var j = 0; j < variable_canvas.width; j++){
+                    variable_data[(i * variable_canvas.width + j) * 4] =
+                        response.value_image[((variable_canvas.height - 1 - i) * variable_canvas.width + j) * 4];
+                    variable_data[(i * variable_canvas.width + j) * 4 + 1] =
+                        response.value_image[((variable_canvas.height - 1 - i) * variable_canvas.width + j) * 4 + 1];
+                    variable_data[(i * variable_canvas.width + j) * 4 + 2] =
+                        response.value_image[((variable_canvas.height - 1 - i) * variable_canvas.width + j) * 4 + 2];
+                    variable_data[(i * variable_canvas.width + j) * 4 + 3] =
+                        response.value_image[((variable_canvas.height - 1 - i) * variable_canvas.width + j) * 4 + 3];
+                }
+            }
+
+            // now we can draw our imagedata onto the canvas
+            variable_ctx.putImageData(variable_imgData, 0, 0);
+
+            var sensitivity_canvas = $("#sensitivity_map")["0"];
+            var sensitivity_ctx = sensitivity_canvas.getContext("2d");
+
+            var sensitivity_imgData = sensitivity_ctx.createImageData(sensitivity_canvas.width, sensitivity_canvas.height); // width x height
+            var sensitivity_data = sensitivity_imgData.data;
+
+            // copy img byte-per-byte into our ImageData
+            for (var i = 0; i < sensitivity_canvas.height; i++) {
+                for (var j = 0; j < sensitivity_canvas.width; j++){
+                    sensitivity_data[(i * sensitivity_canvas.width + j) * 4] =
+                        response.sensitivity_image[((sensitivity_canvas.height - 1 - i) * sensitivity_canvas.width + j) * 4];
+                    sensitivity_data[(i * sensitivity_canvas.width + j) * 4 + 1] =
+                        response.sensitivity_image[((sensitivity_canvas.height - 1 - i) * sensitivity_canvas.width + j) * 4 + 1];
+                    sensitivity_data[(i * sensitivity_canvas.width + j) * 4 + 2] =
+                        response.sensitivity_image[((sensitivity_canvas.height - 1 - i) * sensitivity_canvas.width + j) * 4 + 2];
+                    sensitivity_data[(i * sensitivity_canvas.width + j) * 4 + 3] =
+                        response.sensitivity_image[((sensitivity_canvas.height - 1 - i) * sensitivity_canvas.width + j) * 4 + 3];
+                }
+            }
+
+            // now we can draw our imagedata onto the canvas
+            sensitivity_ctx.putImageData(sensitivity_imgData, 0, 0);
         },
         error: function(error) {
             console.log(error);
