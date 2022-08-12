@@ -100,7 +100,13 @@ function init() {
                 }
                 line_chart.load({
                     columns: [
-                      slp, t2, ght_500hpa, ght_250hpa, u_250hpa, u_200hpa, sst
+                        ['SLP', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        ['T2', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        ['HGT_500hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        ['HGT_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        ['U_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        ['U_200hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        ['SST', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     ]
                 });
             },
@@ -120,6 +126,11 @@ function update_month(selectObject) {
         success: function(response) {
             variable_ctx.clearRect(0, 0, variable_canvas.width, variable_canvas.height);
             sensitivity_ctx.clearRect(0, 0, sensitivity_canvas.width, sensitivity_canvas.height);
+            line_chart.load({
+                columns: [
+                    slp, t2, ght_500hpa, ght_250hpa, u_250hpa, u_200hpa, sst
+                ]
+            });
 
             precip_imgData = precip_ctx.createImageData(precip_canvas.width, precip_canvas.height); // width x height
             var data = precip_imgData.data;
