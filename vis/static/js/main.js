@@ -15,6 +15,8 @@ var variable_ctx = variable_canvas.getContext("2d");
 var sensitivity_canvas = $("#sensitivity_map")["0"];
 var sensitivity_ctx = sensitivity_canvas.getContext("2d");
 
+var json;
+
 function init() {
     // init line chart
     line_chart = c3.generate({
@@ -59,6 +61,17 @@ function init() {
             show: true
         }
     });
+
+    var url = "../static/data/ne_50m_land_0-360_transform.json"
+    var request = new XMLHttpRequest();
+    request.open("get", url);
+    request.send(null);
+    request.onload = function () {
+        if (request.status == 200) {
+            json = JSON.parse(request.responseText);
+            console.log(json);
+        }
+    }
 
     precip_canvas.addEventListener("click", function __handler__(evt) {
         scr_lon_idx = evt.clientX;
@@ -194,6 +207,11 @@ function update_variable_time() {
             variable_ctx.fillStyle = "#000000";
             variable_ctx.fillRect(scr_lon_idx - 1 + scr_lon_offset, scr_lat_idx - 1 + scr_lat_offset, 2, 2);
 
+            for (var i = 0; i < json.length; i++){
+                 variable_ctx.fillRect((json[i][0] - 155.) / 160. * variable_canvas.width,
+                                       (66. - json[i][1]) / 86. * variable_canvas.height, 1, 1);
+            }
+
             var sensitivity_imgData = sensitivity_ctx.createImageData(sensitivity_canvas.width, sensitivity_canvas.height); // width x height
             var sensitivity_data = sensitivity_imgData.data;
 
@@ -217,6 +235,11 @@ function update_variable_time() {
             sensitivity_ctx.strokeRect(scr_lon_offset, scr_lat_offset, parseInt(precip_canvas.width) / 2 , parseInt(precip_canvas.height) / 2);
             sensitivity_ctx.fillStyle = "#000000";
             sensitivity_ctx.fillRect(scr_lon_idx - 1 + scr_lon_offset, scr_lat_idx - 1 + scr_lat_offset, 2, 2);
+
+            for (var i = 0; i < json.length; i++){
+                 sensitivity_ctx.fillRect((json[i][0] - 155.) / 160. * sensitivity_canvas.width,
+                                       (66. - json[i][1]) / 86. * sensitivity_canvas.height, 1, 1);
+            }
         },
         error: function(error) {
             console.log(error);
