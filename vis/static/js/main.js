@@ -1,5 +1,5 @@
 var recep_field = 22
-var line_chart;
+var line_chart0, line_chart1, line_chart2, line_chart3;
 
 var precip_canvas = $("#precip")["0"];
 var precip_ctx = precip_canvas.getContext("2d");
@@ -19,47 +19,83 @@ var json;
 
 function init() {
     // init line chart
-    line_chart = c3.generate({
-        bindto: "#vari_sens",
+    line_chart0 = c3.generate({
+        bindto: "#vari_pressure_sens",
         data: {
             columns: [
-                ['SLP', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ['SLP', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ]
+        },
+        axis: {
+            x: { tick: { format: function (x) { return -21 + x; } },
+                label: "month" },
+            y: { tick: { format: function (y) { return y.toFixed(1); } },
+                label: "sensitivity" }
+        },
+        legend: { show: true },
+        size: { height: 180, width: 380 },
+        padding: { left: 60, bottom: 0 },
+        point: { show: true }
+    });
+
+    line_chart1 = c3.generate({
+        bindto: "#vari_temperature_sens",
+        data: {
+            columns: [
                 ['T2', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                ['HGT_500hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                ['HGT_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                ['U_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                ['U_200hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 ['SST', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             ]
         },
         axis: {
-            x: {
-                tick: {
-                    format: function (x) { return -21 + x; }
-                },
-                label: "month"
-            },
-            y: {
-                tick: {
-                    format: function (y) { return y.toFixed(4); }
-                },
-                label: "sensitivity"
-            }
+            x: { tick: { format: function (x) { return -21 + x; } },
+                label: "month" },
+            y: { tick: { format: function (y) { return y.toFixed(1); } },
+                label: "sensitivity" }
         },
-        legend: {
-            show: true
+        legend: { show: true },
+        size: { height: 180, width: 380 },
+        padding: { left: 60, bottom: 0 },
+        point: { show: true }
+    });
+
+    line_chart2 = c3.generate({
+        bindto: "#vari_hgt_sens",
+        data: {
+            columns: [
+                ['HGT_500hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ['HGT_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ]
         },
-        size: {
-            height: 180,
-            width: 760
+        axis: {
+            x: { tick: { format: function (x) { return -21 + x; } },
+                label: "month" },
+            y: { tick: { format: function (y) { return y.toFixed(1); } },
+                label: "sensitivity" }
         },
-        padding: {
-            left: 60,
-            bottom: 0
+        legend: { show: true },
+        size: { height: 180, width: 380 },
+        padding: { left: 60, bottom: 0 },
+        point: { show: true }
+    });
+
+    line_chart3 = c3.generate({
+        bindto: "#vari_wind_sens",
+        data: {
+            columns: [
+                ['U_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ['U_200hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ]
         },
-        point: {
-            show: true
-        }
+        axis: {
+            x: { tick: { format: function (x) { return -21 + x; } },
+                label: "month" },
+            y: { tick: { format: function (y) { return y.toFixed(1); } },
+                label: "sensitivity" }
+        },
+        legend: { show: true },
+        size: { height: 180, width: 380 },
+        padding: { left: 60, bottom: 0 },
+        point: { show: true }
     });
 
     var url = "../static/data/ne_50m_land_0-360_transform.json"
@@ -111,11 +147,10 @@ function init() {
                     u_200hpa.push(response.grad_stats[recep_field * 5 + i]);
                     sst.push(response.grad_stats[recep_field * 6 + i]);
                 }
-                line_chart.load({
-                    columns: [
-                      slp, t2, ght_500hpa, ght_250hpa, u_250hpa, u_200hpa, sst
-                    ]
-                });
+                line_chart0.load({ columns: [ slp ] });
+                line_chart1.load({ columns: [ t2, sst ] });
+                line_chart2.load({ columns: [ ght_500hpa, ght_250hpa ] });
+                line_chart3.load({ columns: [ u_250hpa, u_200hpa ] });
             },
             error: function(error) {
                 console.log(error);
@@ -133,15 +168,27 @@ function update_month(selectObject) {
         success: function(response) {
             variable_ctx.clearRect(0, 0, variable_canvas.width, variable_canvas.height);
             sensitivity_ctx.clearRect(0, 0, sensitivity_canvas.width, sensitivity_canvas.height);
-            line_chart.load({
+            line_chart0.load({
                 columns: [
                     ['SLP', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ]
+            });
+            line_chart1.load({
+                columns: [
                     ['T2', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    ['HGT_500hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    ['HGT_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    ['U_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    ['U_200hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     ['SST', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                ]
+            });
+            line_chart2.load({
+                columns: [
+                    ['HGT_500hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    ['HGT_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                ]
+            });
+            line_chart3.load({
+                columns: [
+                    ['U_250hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    ['U_200hPa', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 ]
             });
 
