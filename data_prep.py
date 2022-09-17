@@ -27,7 +27,6 @@ for i in range(1981, 2022):
 np.save(os.path.join(root, "PRISM_ppt.npy"), precip)
 precip[:, int(44.5 * multiplier + 0.5):int(69.5 * multiplier + 0.5), int(80 * multiplier + 0.5):int(138.5 * multiplier + 0.5)]\
     .tofile(os.path.join(root, "PRISM_ppt.raw"))
-pdb.set_trace()
 
 high_lat, high_lon =  361, 576
 high_feat = np.zeros((7, ts, high_lat, high_lon), dtype=np.float32)
@@ -62,12 +61,11 @@ high_feat[5].tofile(os.path.join(root, 'MERRA2_U_200hPa.raw'))
 
 f = nc.Dataset(os.path.join(root, "MERRA2_SST_80_21.nc"))
 sst = f["SST"][:][12:12+ts]
-high_feat[6, :, :, :high_lon//2] = t2[:, :, high_lon//2:]   # east
-high_feat[6, :, :, high_lon//2:] = t2[:, :, :high_lon//2]    # west
+high_feat[6, :, :, :high_lon//2] = sst[:, :, high_lon//2:]   # east
+high_feat[6, :, :, high_lon//2:] = sst[:, :, :high_lon//2]    # west
 high_feat[6].tofile(os.path.join(root, 'MERRA2_SST.raw'))
 
 low_feat = np.zeros((7, ts, low_lat, low_lon), dtype=np.float32)
-
 for i in range(ts):
     high_res = torch.from_numpy(high_feat[:, i, sub_lat_st:sub_lat_en, sub_lon_st:sub_lon_en]).unsqueeze(0).cuda()
     low_res = F.interpolate(high_res, size=[low_lat, low_lon], mode="bilinear")

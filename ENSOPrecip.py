@@ -16,7 +16,9 @@ class ENSOPrecipDataset(Dataset):
         self.transform = transform
 
         self.enso_input_feat = np.load(os.path.join(self.root, "train", "input_feat.npy"))
+        self.enso_continent_mask = np.isnan(self.enso_input_feat[-1, 0])
         self.enso_precip = np.load(os.path.join(self.root, "train", "PRISM_ppt.npy"))
+        self.num_variables = self.enso_input_feat.shape[0]
         self.timesteps = self.enso_input_feat.shape[1]
         self.recep_field = 22
 
@@ -29,8 +31,11 @@ class ENSOPrecipDataset(Dataset):
 
         input_feat = self.enso_input_feat[:, index : index + self.recep_field]
         precip = self.enso_precip[index + self.recep_field - 1 : index + self.recep_field]
+        input_mask = self.enso_continent_mask[np.newaxis, np.newaxis, :]\
+            .repeat(self.recep_field, axis=1).repeat(self.num_variables, axis=0)
 
-        sample = {"index": index + self.recep_field - 1, "input_feat": input_feat, "precip": precip}
+        sample = {"index": index + self.recep_field - 1, "input_feat": input_feat,
+                  "input_mask": input_mask, "precip": precip}
 
         if self.transform:
             sample = self.transform(sample)
@@ -41,15 +46,17 @@ class Normalize(object):
     def __call__(self, sample):
         index = sample["index"]
         input_feat = sample["input_feat"]
+        input_mask = sample["input_mask"]
         precip = sample["precip"]
 
-        input_feat_min = np.array([95827.602, 199.63177, 4644.373, 4644.373, -21.138626, -21.138626, 267.872]).reshape((-1, 1, 1, 1))
-        input_feat_max = np.array([104431.23, 314.57242, 5970.5391, 5970.5391, 87.681274, 87.681274, 309.222]).reshape((-1, 1, 1, 1))
+        input_feat_min = np.array([97790.586, 229.67299, 4825.4565, 9235.415, -18.268473, -23.363884, 268.30017]).reshape((-1, 1, 1, 1))
+        input_feat_max = np.array([103410.69, 309.953,   5973.6914, 11126.077, 87.62169,  89.21173,   305.68158]).reshape((-1, 1, 1, 1))
         input_feat = ((input_feat - (input_feat_min + input_feat_max) / 2.)
                       / ((input_feat_max - input_feat_min) / 2.)).astype(np.float32)
+        input_feat[input_mask] = 0.
 
         precip_min = 0.
-        precip_max = 1908.8616
+        precip_max = 1759.4718
         precip = ((precip - (precip_min + precip_max) / 2.) / ((precip_max - precip_min) / 2.)).astype(np.float32)
 
         return {"index": index, "input_feat": input_feat, "precip": precip}
